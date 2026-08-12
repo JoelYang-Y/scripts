@@ -770,7 +770,8 @@ local RESPONSE=$(curl -Ls -m 10 "https://ipinfo.io/widget/demo/$IP")
 else
 local RESPONSE=$(curl $CurlARG -Ls -m 10 "https://ipinfo.io/widget/demo/$IP")
 fi
-echo "$RESPONSE"|jq . >/dev/null 2>&1||RESPONSE=""
+# 容错: API 返回非 JSON 时静默跳过 IPinfo 检测 (不再触发 jq parse error 刷屏)
+echo "$RESPONSE"|jq . >/dev/null 2>&1||return 0
 ipinfo[usetype]=$(echo "$RESPONSE"|jq -r '.data.asn.type')
 ipinfo[comtype]=$(echo "$RESPONSE"|jq -r '.data.company.type')
 shopt -s nocasematch
@@ -802,7 +803,7 @@ ipinfo[proxy]=$(echo "$RESPONSE"|jq -r '.data.privacy.proxy')
 ipinfo[tor]=$(echo "$RESPONSE"|jq -r '.data.privacy.tor')
 ipinfo[vpn]=$(echo "$RESPONSE"|jq -r '.data.privacy.vpn')
 ipinfo[server]=$(echo "$RESPONSE"|jq -r '.data.privacy.hosting')
-local ISO3166=$(curl -sL -m 10 "${rawgithub}main/ref/iso3166.json")
+local ISO3166=$(curl -sL -m 10 "${rawgithub}iso3166.json")
 ipinfo[asn]=$(echo "$RESPONSE"|jq -r '.data.asn.asn'|sed 's/^AS//')
 ipinfo[org]=$(echo "$RESPONSE"|jq -r '.data.asn.name')
 ipinfo[city]=$(echo "$RESPONSE"|jq -r '.data.city')
@@ -1785,7 +1786,7 @@ local total=0
 local clean=0
 local blacklisted=0
 local other=0
-curl $CurlARG -sL "${rawgithub}main/ref/dnsbl.list"|sort -u|xargs -P "$parallel_jobs" -I {} bash -c "result=\$(dig +short \"$reversed_ip.{}\" A); if [[ -z \"\$result\" ]]; then echo 'Clean'; elif [[ \"\$result\" =~ ^127\.255\.255\. ]]; then echo 'Clean'; elif [[ \"\$result\" == '127.0.0.2' ]]; then echo 'Blacklisted'; else echo 'Other'; fi"|{
+curl $CurlARG -sL "${rawgithub}dnsbl.list"|sort -u|xargs -P "$parallel_jobs" -I {} bash -c "result=\$(dig +short \"$reversed_ip.{}\" A); if [[ -z \"\$result\" ]]; then echo 'Clean'; elif [[ \"\$result\" =~ ^127\.255\.255\. ]]; then echo 'Clean'; elif [[ \"\$result\" == '127.0.0.2' ]]; then echo 'Blacklisted'; else echo 'Other'; fi"|{
 while IFS= read -r line;do
 ((total++))
 case "$line" in
@@ -2256,8 +2257,8 @@ return 0
 }
 
 read_ref(){
-Media_Cookie=$(curl $CurlARG -sL --retry 3 --max-time 10 "${rawgithub}main/ref/cookies.txt")
-IATA_Database="${rawgithub}main/ref/iata-icao.csv"
+Media_Cookie=$(curl $CurlARG -sL --retry 3 --max-time 10 "${rawgithub}cookies.txt")
+IATA_Database="${rawgithub}iata-icao.csv"
 }
 clean_ansi(){
 local input="$1"
