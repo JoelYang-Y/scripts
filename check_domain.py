@@ -200,8 +200,12 @@ def probe_ip_egress(opener, policy_label):
             direct_opener = urllib.request.build_opener(no_proxy)
             direct_ip = None
             # 按顺序尝试多个直连 IP API, 直到拿到 IP
-            for api in ('https://ip.sb', 'https://api.ipify.org', 'https://ifconfig.me/ip',
-                        'https://ipinfo.io/ip', 'http://cip.cc'):
+            # ⚠️ TUN 增强模式下任何 HTTP 连接都会进 Surge TUN 被规则二次匹配,
+            #    所以直连探测必须优先用国内回显站 (China.list → DIRECT);
+            #    国外站 (ip.sb/ipify/ifconfig/cip.cc) 命中 Proxy.list → 节点选择,
+            #    会显示代理出口 IP (2026-08-13 实测: 假直连 107.141.151.219)
+            for api in ('http://myip.ipip.net', 'https://ip.sb', 'https://api.ipify.org',
+                        'https://ifconfig.me/ip', 'https://ipinfo.io/ip', 'http://cip.cc'):
                 try:
                     resp_d = direct_opener.open(api, timeout=4)
                     raw = resp_d.read().decode('utf-8', errors='ignore').strip()
