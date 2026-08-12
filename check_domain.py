@@ -86,11 +86,21 @@ def is_ip_input(s):
     s = s.strip()
     if not s:
         return False
-    # 去掉 CIDR 后缀 (/xx) 后, 应只剩数字和点
     base = s.split('/')[0]
     if not base:
         return False
     return all(c.isdigit() or c == '.' for c in base) and '.' in base
+
+
+def ip_in_cidr(ip_str, cidr_str):
+    """判断 IP 是否在 CIDR 网段内 (用 ipaddress 库精确计算)"""
+    try:
+        import ipaddress
+        ip = ipaddress.ip_address(ip_str.strip())
+        net = ipaddress.ip_network(cidr_str.strip(), strict=False)
+        return ip in net
+    except Exception:
+        return False
 
 
 def check_domain_exit_ip(domain):
@@ -131,12 +141,61 @@ def check_domain_exit_ip(domain):
 
         # 收集所有匹配的记录 (含 URL / notes 里的域名 / SNI / IP-CIDR)
         candidates = []
-        for r in data.get('requests', []):
-            url = r.get('URL', '') or ''
-            notes = r.get('notes', []) or []
-            blob = f"{url} {' '.join(notes)}"
-            if domain.lower() in blob.lower():
-                candidates.append(r)
+        if is_ip:
+            # IP 输入: 只匹配 IP-CIDR 规则, 用精确 CIDR 计算
+            # 判断输入是否完整 IP 或 CIDR 网段 (如 10.0.0.3 / 10.0.0.0/24)
+            import ipaddress as _ipa
+            is_full_ip = False
+            is_cidr_net = False
+            full_ip_val = None
+            try:
+                full_ip_val = _ipa.ip_address(domain.split('/')[0])
+                is_full_ip = True
+            except Exception:
+                pass
+            try:
+                _net = _ipa.ip_network(domain, strict=False)
+                is_cidr_net = True
+            except Exception:
+                pass
+
+            for r in data.get('requests', []):
+                url = r.get('URL', '') or ''
+                notes = r.get('notes', []) or []
+                blob = f"{url} {' '.join(notes)}"
+                if 'IP-CIDR' not in blob:
+                    continue
+                # 提取记录里的 IP-CIDR 网段 (如 172.16.0.0/12)
+                for n in notes:
+                    m = re.search(r'IP-CIDR\s*([0-9a-fA-F.:/]+)', n)
+                    if not m:
+                        continue
+                    cidr_str = m.group(1).strip()
+                    # 匹配条件:
+                    #  - 完整 IP 输入: 用精确 CIDR 判断 (ip in network)
+                    #  - CIDR 网段输入: 网段相等
+                    #  - 部分 IP 段 (如 10.0.0): 前缀子串匹配 (提示可能不准)
+                    if is_full_ip:
+                        if ip_in_cidr(str(full_ip_val), cidr_str):
+                            candidates.append(r)
+                            break
+                    elif is_cidr_net:
+                        if domain.strip() == cidr_str:
+                            candidates.append(r)
+                            break
+                    else:
+                        if domain.lower() in blob.lower():
+                            candidates.append(r)
+                            break
+            if not is_full_ip and not is_cidr_net and not candidates:
+                print(f"   💡 提示: '{domain}' 是不完整 IP 段, 请尝试完整 IP (如 {domain}.0.3) 或 CIDR (如 {domain}.0.0/24)。")
+        else:
+            for r in data.get('requests', []):
+                url = r.get('URL', '') or ''
+                notes = r.get('notes', []) or []
+                blob = f"{url} {' '.join(notes)}"
+                if domain.lower() in blob.lower():
+                    candidates.append(r)
 
         if not candidates:
             print("❌ 未能在 Surge 中找到匹配记录, 请确保 Surge 已启动并在接管流量。")
@@ -271,13 +330,24 @@ def check_domain_exit_ip(domain):
             """
             try:
                 if policy_label == 'DIRECT' or 'DEVICE:' in str(policy_label):
-                    # 直连: 不走 Surge 代理, 用国内可达的 API 查询真实出口
-                    direct_opener = urllib.request.build_opener()
-                    try:
-                        resp_d = direct_opener.open("https://ip.sb", timeout=5)
-                        direct_ip = resp_d.read().decode('utf-8').strip()
-                    except Exception:
-                        direct_ip = None
+                    # 直连: 显式禁用代理 (urllib 默认读环境变量代理, 必须用 ProxyHandler({}) 覆盖)
+                    no_proxy = urllib.request.ProxyHandler({})
+                    direct_opener = urllib.request.build_opener(no_proxy)
+                    direct_ip = None
+                    # 按顺序尝试多个直连 IP API, 直到拿到 IP
+                    for api in ('https://ip.sb', 'https://api.ipify.org', 'https://ifconfig.me/ip',
+                                'https://ipinfo.io/ip', 'http://cip.cc'):
+                        try:
+                            resp_d = direct_opener.open(api, timeout=4)
+                            raw = resp_d.read().decode('utf-8', errors='ignore').strip()
+                            # 从响应中提取 IPv4 (cip.cc 等返回带文本的响应)
+                            import re as _re
+                            m = _re.search(r'\b(\d{1,3}(?:\.\d{1,3}){3})\b', raw)
+                            if m:
+                                direct_ip = m.group(1)
+                                break
+                        except Exception:
+                            continue
                     if direct_ip:
                         # 用 ip-api.com 查详情 (直连)
                         try:
@@ -323,6 +393,8 @@ def check_domain_exit_ip(domain):
         if main_result:
             ip, country, cc, region, city, isp, asn_num, asn_org = main_result
             print(f"🖥️ 域名出口:  {ip}")
+            if probe_policy == 'DIRECT' or 'DEVICE:' in str(probe_policy):
+                print(f"   ⚠️ Surge TUN 接管中, 此出口可能非真直连 (受 Surge 全局路由影响)")
             print(f"   📍 {country} ({cc}) {region} {city} | {isp} | ASN {asn_num} {asn_org}".rstrip())
         else:
             print("   ❌ 域名策略探测失败")
@@ -356,7 +428,9 @@ if __name__ == "__main__":
                 domain = domain[7:]
             elif domain.startswith("https://"):
                 domain = domain[8:]
-            domain = domain.split('/')[0]
+            # 非 IP 输入才截断路径 (IP/CIDR 如 127.0.0.0/8 不能截断)
+            if not is_ip_input(domain):
+                domain = domain.split('/')[0]
 
             check_domain_exit_ip(domain)
     except KeyboardInterrupt:
