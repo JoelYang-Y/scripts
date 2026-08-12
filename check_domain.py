@@ -155,6 +155,28 @@ def check_domain_exit_ip(domain):
         if rule_type == 'FINAL':
             print("   ⚠️ 命中【兜底规则】(FINAL), 该域名没有专门规则, 走默认策略。")
 
+        # 已知服务的策略组映射: 关键词 -> 策略组名 (用于探测 App/IP 段实际出口)
+        GROUP_HINTS = {
+            'telegram': 'Telegram',
+            'whatsapp': 'Telegram',   # WhatsApp 也常归入 Telegram 组 (Meta 类目)
+            'youtube': 'Google',
+            'google': 'Google',
+            'netflix': 'Netflix',
+            'disney': 'Disney',
+            'tiktok': 'TikTok',
+            'chatgpt': 'OpenAI',
+            'openai': 'OpenAI',
+            'paypal': 'PayPal',
+        }
+        group_name = None
+        for kw, grp in GROUP_HINTS.items():
+            if kw in domain.lower():
+                group_name = grp
+                break
+
+        if group_name:
+            print(f"   💡 检测到 {domain} 可能对应策略组 [{group_name}], 将额外探测该组的实际出口...")
+
     except Exception as e:
         print(f"❌ 无法连接 Surge API, 请检查密码或端口配置 ({e})")
         return
@@ -168,30 +190,49 @@ def check_domain_exit_ip(domain):
             if last_node:
                 probe_policy = last_node
 
-        req_ip = urllib.request.Request("http://ip-api.com/json/")
-        req_ip.add_header("X-Surge-Policy", probe_policy)
-        resp_ip = opener.open(req_ip, timeout=5)
-        ip_data = json.loads(resp_ip.read().decode('utf-8'))
+        def probe_ip(policy_label):
+            """强制走指定策略探测出口 IP, 返回 (ip, country, region, isp, asn) 或 None"""
+            try:
+                req_ip = urllib.request.Request("http://ip-api.com/json/")
+                req_ip.add_header("X-Surge-Policy", policy_label)
+                resp_ip = opener.open(req_ip, timeout=5)
+                d = json.loads(resp_ip.read().decode('utf-8'))
+                if d.get('status') == 'success':
+                    asn_raw = d.get('as', '')
+                    asn_num = asn_raw.split()[0] if asn_raw else ''
+                    asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
+                    return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
+                            d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
+            except Exception:
+                pass
+            return None
 
-        if ip_data['status'] == 'success':
-            asn_raw = ip_data.get('as', '')
-            asn_num = asn_raw.split()[0] if asn_raw else ''
-            asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
-            country_code = ip_data.get('countryCode', '')
+        # 1) 探测域名实际命中策略
+        main_result = probe_ip(probe_policy)
 
-            print("\n================ 最终检测结果 ================")
-            print(f"🌐 域名: {domain}")
-            print(f"🛤️ 策略: {probe_policy}")
-            if decision_path:
-                print(f"🔗 决策链: {decision_path}")
-            print(f"🖥️ 出口 IP:  {ip_data['query']}")
-            print(f"📍 国家:     {ip_data.get('country', '')} ({country_code})")
-            print(f"🗺️  地区:     {ip_data.get('regionName', '')} {ip_data.get('city', '')}")
-            print(f"🏢 运营商:   {ip_data.get('isp', '')}")
-            print(f"🔢 ASN:      {asn_num} {asn_org}".rstrip())
-            print("==============================================")
+        # 2) 若有对应策略组, 额外探测组的实际出口 (App/IP 段路径)
+        group_result = None
+        if group_name and group_name != probe_policy:
+            group_result = probe_ip(group_name)
+
+        print("\n================ 最终检测结果 ================")
+        print(f"🌐 域名: {domain}")
+        print(f"🛤️ 域名命中策略: {probe_policy}")
+        if decision_path:
+            print(f"🔗 决策链:   {decision_path}")
+        if main_result:
+            ip, country, cc, region, city, isp, asn_num, asn_org = main_result
+            print(f"🖥️ 域名出口:  {ip}")
+            print(f"   📍 {country} ({cc}) {region} {city} | {isp} | ASN {asn_num} {asn_org}".rstrip())
         else:
-            print("❌ 获取出口 IP 详情失败。")
+            print("   ❌ 域名策略探测失败")
+
+        if group_result:
+            ip, country, cc, region, city, isp, asn_num, asn_org = group_result
+            print(f"\n🛤️ 策略组 [{group_name}] (App/IP 段路径):")
+            print(f"🖥️ 组出口:    {ip}")
+            print(f"   📍 {country} ({cc}) {region} {city} | {isp} | ASN {asn_num} {asn_org}".rstrip())
+        print("==============================================")
 
     except Exception as e:
         print(f"❌ 测速 IP 失败: {e}")
