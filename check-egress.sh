@@ -2160,7 +2160,6 @@ fi
 }
 show_tail(){
 echo -ne "\r$(printf '%72s'|tr ' ' '=')\n"
-echo -ne "\r$Font_I${stail[stoday]}${stail[today]}${stail[stotal]}${stail[total]}${stail[thanks]} $Font_Suffix\n"
 echo -e ""
 }
 get_opts(){
@@ -2491,7 +2490,7 @@ ipjson='{
     }'
 [[ $2 -eq 4 ]]&&hide_ipv4 $IP
 [[ $2 -eq 6 ]]&&hide_ipv6 $IP
-countRunTimes
+# countRunTimes  # 已禁用第三方统计打点 (hits.xykt.de)
 db_maxmind $2
 db_ipinfo
 [[ $mode_lite -eq 0 ]]&&db_scamalytics $2||scamalytics=()
