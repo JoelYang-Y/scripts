@@ -103,6 +103,146 @@ def ip_in_cidr(ip_str, cidr_str):
         return False
 
 
+def static_rule_match_ip(ip_input):
+    """读 Surge /v1/rules 静态匹配 IP/CIDR 规则, 返回 (rule, policy) 或 None.
+    不依赖 recent 历史流量, 直接按规则引擎逐条匹配.
+    支持: 完整 IP (129.146.3.78) / CIDR (129.146.3.78/32, 10.0.0.0/24)
+    """
+    import ipaddress as _ipa
+    # 解析输入: 完整 IP 或 CIDR 网段
+    is_full_ip = False
+    full_ip_val = None
+    cidr_input = None
+    try:
+        full_ip_val = _ipa.ip_address(ip_input.split('/')[0])
+        is_full_ip = True
+    except Exception:
+        pass
+    try:
+        cidr_input = _ipa.ip_network(ip_input, strict=False)
+    except Exception:
+        pass
+
+    try:
+        req = urllib.request.Request('http://127.0.0.1:6171/v1/rules', headers={"X-Key": API_KEY})
+        resp = urllib.request.urlopen(req, timeout=3)
+        data = json.loads(resp.read().decode('utf-8'))
+    except Exception:
+        return None
+
+    for rule_str in data.get('rules', []):
+        parts = [p.strip() for p in rule_str.split(',')]
+        if not parts:
+            continue
+        rule_type = parts[0].upper()
+
+        # 1) 直接 IP-CIDR 规则
+        if rule_type in ('IP-CIDR', 'IP-CIDR6'):
+            if len(parts) < 3:
+                continue
+            cidr_str = parts[1]
+            policy = parts[2]
+            try:
+                net = _ipa.ip_network(cidr_str, strict=False)
+            except Exception:
+                continue
+            if is_full_ip:
+                if full_ip_val in net:
+                    return (f'IP-CIDR {cidr_str}', policy)
+            elif cidr_input is not None:
+                if net.overlaps(cidr_input):
+                    return (f'IP-CIDR {cidr_str}', policy)
+            continue
+
+        # 2) RULE-SET 远程 list: 拉取文件匹配 IP-CIDR 子规则
+        if rule_type == 'RULE-SET' and len(parts) >= 3:
+            list_url = parts[1]
+            policy = parts[2]
+            try:
+                req_list = urllib.request.Request(list_url, headers={'User-Agent': 'Mozilla/5.0'})
+                resp_list = urllib.request.urlopen(req_list, timeout=8)
+                list_content = resp_list.read().decode('utf-8', errors='ignore')
+            except Exception:
+                continue
+            for line in list_content.splitlines():
+                line = line.strip()
+                if not line or line.startswith('#') or line.startswith('//'):
+                    continue
+                lparts = [p.strip() for p in line.split(',')]
+                if not lparts or lparts[0].upper() not in ('IP-CIDR', 'IP-CIDR6'):
+                    continue
+                if len(lparts) < 2:
+                    continue
+                cidr_str = lparts[1]
+                try:
+                    net = _ipa.ip_network(cidr_str, strict=False)
+                except Exception:
+                    continue
+                if is_full_ip:
+                    if full_ip_val in net:
+                        list_name = list_url.rstrip('/').split('/')[-1]
+                        return (f'IP-CIDR {cidr_str}(in {list_name})', policy)
+                elif cidr_input is not None:
+                    if net.overlaps(cidr_input):
+                        list_name = list_url.rstrip('/').split('/')[-1]
+                        return (f'IP-CIDR {cidr_str}(in {list_name})', policy)
+    return None
+
+
+def probe_ip_egress(opener, policy_label):
+    """强制走指定策略探测出口 IP, 返回 (ip, country, region, isp, asn) 或 None.
+    DIRECT 时用无代理直连查询 (多源 fallback)
+    """
+    try:
+        if policy_label == 'DIRECT' or 'DEVICE:' in str(policy_label):
+            # 直连: 显式禁用代理 (urllib 默认读环境变量代理, 必须用 ProxyHandler({}) 覆盖)
+            no_proxy = urllib.request.ProxyHandler({})
+            direct_opener = urllib.request.build_opener(no_proxy)
+            direct_ip = None
+            # 按顺序尝试多个直连 IP API, 直到拿到 IP
+            for api in ('https://ip.sb', 'https://api.ipify.org', 'https://ifconfig.me/ip',
+                        'https://ipinfo.io/ip', 'http://cip.cc'):
+                try:
+                    resp_d = direct_opener.open(api, timeout=4)
+                    raw = resp_d.read().decode('utf-8', errors='ignore').strip()
+                    # 从响应中提取 IPv4 (cip.cc 等返回带文本的响应)
+                    import re as _re
+                    m = _re.search(r'\b(\d{1,3}(?:\.\d{1,3}){3})\b', raw)
+                    if m:
+                        direct_ip = m.group(1)
+                        break
+                except Exception:
+                    continue
+            if direct_ip:
+                # 用 ip-api.com 查详情 (直连)
+                try:
+                    resp_info = direct_opener.open(f"http://ip-api.com/json/{direct_ip}", timeout=5)
+                    d = json.loads(resp_info.read().decode('utf-8'))
+                    if d.get('status') == 'success':
+                        asn_raw = d.get('as', '')
+                        asn_num = asn_raw.split()[0] if asn_raw else ''
+                        asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
+                        return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
+                                d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
+                except Exception:
+                    pass
+                return (direct_ip, '', '', '', '', '', '', '')
+        # 代理策略: 用 X-Surge-Policy 强制走指定策略
+        req_ip = urllib.request.Request("http://ip-api.com/json/")
+        req_ip.add_header("X-Surge-Policy", policy_label)
+        resp_ip = opener.open(req_ip, timeout=5)
+        d = json.loads(resp_ip.read().decode('utf-8'))
+        if d.get('status') == 'success':
+            asn_raw = d.get('as', '')
+            asn_num = asn_raw.split()[0] if asn_raw else ''
+            asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
+            return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
+                    d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
+    except Exception:
+        pass
+    return None
+
+
 def check_domain_exit_ip(domain):
     opener = make_opener()
 
@@ -198,7 +338,71 @@ def check_domain_exit_ip(domain):
                     candidates.append(r)
 
         if not candidates:
-            print("❌ 未能在 Surge 中找到匹配记录, 请确保 Surge 已启动并在接管流量。")
+            # IP 输入且 recent 无记录: 尝试静态规则匹配 (/v1/rules 不依赖历史流量)
+            if is_ip:
+                static_hit = static_rule_match_ip(domain)
+                if static_hit:
+                    static_rule, static_policy = static_hit
+                    matched_rule = static_rule
+                    matched_policy = static_policy
+                    decision_path = None
+                    sub_rule = static_rule
+                    matched_ipcidr = static_rule
+                    rule_type = 'IP-CIDR'
+                    rule_types = {'IP-CIDR'}
+                    print(f"🎯 命中规则: [{static_rule}]")
+                    print(f"🛤️ 路由策略: [{static_policy}]")
+                    print(f"📋 规则类型: IP-CIDR (静态规则匹配)")
+                    print("   ✅ 命中【IP-CIDR 规则】(静态匹配, 无需历史流量)")
+                    probe_policy = static_policy
+                    group_name = None
+                    main_result = probe_ip_egress(opener, probe_policy)
+                    print("\n================ 最终检测结果 ================")
+                    print(f"🌐 IP/网段: {domain}")
+                    print(f"🛤️ 命中策略: {probe_policy}")
+                    if main_result:
+                        ip, country, cc, region, city, isp, asn_num, asn_org = main_result
+                        print(f"🖥️ 出口:     {ip}")
+                        if probe_policy == 'DIRECT' or 'DEVICE:' in str(probe_policy):
+                            print(f"   ⚠️ Surge TUN 接管中, 此出口可能非真直连 (受 Surge 全局路由影响)")
+                        print(f"   📍 {country} ({cc}) {region} {city} | {isp} | ASN {asn_num} {asn_org}".rstrip())
+                    else:
+                        print("   ❌ 策略探测失败")
+                    print("==============================================")
+                    return
+            # IP 输入: 静态规则未命中 IP-CIDR, 但可能走 FINAL 兜底
+            if is_ip:
+                try:
+                    req2 = urllib.request.Request('http://127.0.0.1:6171/v1/rules', headers={"X-Key": API_KEY})
+                    resp2 = urllib.request.urlopen(req2, timeout=3)
+                    data2 = json.loads(resp2.read().decode('utf-8'))
+                    # FINAL 规则: 最后一条形如 "FINAL,<policy>,dns-failed" 或 "FINAL,<policy>"
+                    final_policy = None
+                    for rule_str in data2.get('rules', []):
+                        parts = [p.strip() for p in rule_str.split(',')]
+                        if parts and parts[0].upper() == 'FINAL' and len(parts) >= 2:
+                            final_policy = parts[1]
+                            break
+                    if final_policy:
+                        print(f"🎯 命中规则: [FINAL] (该 IP 无专门 IP-CIDR 规则, 走兜底)")
+                        print(f"🛤️ 路由策略: [{final_policy}]")
+                        print(f"📋 规则类型: FINAL (静态规则匹配)")
+                        main_result = probe_ip_egress(opener, final_policy)
+                        print("\n================ 最终检测结果 ================")
+                        print(f"🌐 IP/网段: {domain}")
+                        print(f"🛤️ 命中策略: {final_policy}")
+                        if main_result:
+                            ip, country, cc, region, city, isp, asn_num, asn_org = main_result
+                            print(f"🖥️ 出口:     {ip}")
+                            if final_policy == 'DIRECT' or 'DEVICE:' in str(final_policy):
+                                print(f"   ⚠️ Surge TUN 接管中, 此出口可能非真直连 (受 Surge 全局路由影响)")
+                            print(f"   📍 {country} ({cc}) {region} {city} | {isp} | ASN {asn_num} {asn_org}".rstrip())
+                        else:
+                            print("   ❌ 策略探测失败")
+                        print("==============================================")
+                        return
+                except Exception:
+                    pass
             if is_keyword:
                 print("   💡 提示: 输入的是关键词而非完整域名, 可尝试输入完整域名 (如 telegram.org)。")
             if is_ip:
@@ -324,66 +528,13 @@ def check_domain_exit_ip(domain):
             if last_node:
                 probe_policy = last_node
 
-        def probe_ip(policy_label):
-            """强制走指定策略探测出口 IP, 返回 (ip, country, region, isp, asn) 或 None
-            DIRECT 时用无代理直连查询 (ip.sb 等国内可达 API)
-            """
-            try:
-                if policy_label == 'DIRECT' or 'DEVICE:' in str(policy_label):
-                    # 直连: 显式禁用代理 (urllib 默认读环境变量代理, 必须用 ProxyHandler({}) 覆盖)
-                    no_proxy = urllib.request.ProxyHandler({})
-                    direct_opener = urllib.request.build_opener(no_proxy)
-                    direct_ip = None
-                    # 按顺序尝试多个直连 IP API, 直到拿到 IP
-                    for api in ('https://ip.sb', 'https://api.ipify.org', 'https://ifconfig.me/ip',
-                                'https://ipinfo.io/ip', 'http://cip.cc'):
-                        try:
-                            resp_d = direct_opener.open(api, timeout=4)
-                            raw = resp_d.read().decode('utf-8', errors='ignore').strip()
-                            # 从响应中提取 IPv4 (cip.cc 等返回带文本的响应)
-                            import re as _re
-                            m = _re.search(r'\b(\d{1,3}(?:\.\d{1,3}){3})\b', raw)
-                            if m:
-                                direct_ip = m.group(1)
-                                break
-                        except Exception:
-                            continue
-                    if direct_ip:
-                        # 用 ip-api.com 查详情 (直连)
-                        try:
-                            resp_info = direct_opener.open(f"http://ip-api.com/json/{direct_ip}", timeout=5)
-                            d = json.loads(resp_info.read().decode('utf-8'))
-                            if d.get('status') == 'success':
-                                asn_raw = d.get('as', '')
-                                asn_num = asn_raw.split()[0] if asn_raw else ''
-                                asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
-                                return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
-                                        d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
-                        except Exception:
-                            pass
-                        return (direct_ip, '', '', '', '', '', '', '')
-                # 代理策略: 用 X-Surge-Policy 强制走指定策略
-                req_ip = urllib.request.Request("http://ip-api.com/json/")
-                req_ip.add_header("X-Surge-Policy", policy_label)
-                resp_ip = opener.open(req_ip, timeout=5)
-                d = json.loads(resp_ip.read().decode('utf-8'))
-                if d.get('status') == 'success':
-                    asn_raw = d.get('as', '')
-                    asn_num = asn_raw.split()[0] if asn_raw else ''
-                    asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
-                    return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
-                            d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
-            except Exception:
-                pass
-            return None
-
         # 1) 探测域名实际命中策略
-        main_result = probe_ip(probe_policy)
+        main_result = probe_ip_egress(opener, probe_policy)
 
         # 2) 若有对应策略组, 额外探测组的实际出口 (App/IP 段路径)
         group_result = None
         if group_name and group_name != probe_policy:
-            group_result = probe_ip(group_name)
+            group_result = probe_ip_egress(opener, group_name)
 
         print("\n================ 最终检测结果 ================")
         print(f"🌐 域名: {domain}")
