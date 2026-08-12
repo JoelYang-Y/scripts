@@ -9,14 +9,11 @@
 | `check-egress.sh` | **IP 完整体检**（xykt/IPQuality v2026-08-09，即 https://IP.Check.Place）：IP 类型/纯净度/Scamalytics 评分/代理检测/流媒体解锁/邮局连通性 | 见下方 |
 | `check-site-egress.sh` | 检测指定网站在本地网络(Surge)中的实际出口 IP | `./check-site-egress.sh paypal.com` / `-j` |
 
-## check-egress.sh 用法（IPQuality）
+## check-egress.sh 用法（IPQuality 完整检测）
 
 ```bash
-# 用你自己的域名（自托管 Check.Place 菜单壳，-I = IP 完整检测）
-bash <(curl -Ls https://joel.jhsweetheart.com/checkplace.sh) -I
-
-# 或直接调用检测脚本（等价）
-bash <(curl -Ls https://joel.jhsweetheart.com/ip.check.place) -4 -n -p
+# 用你自己的域名（check-egress.sh 就是完整 IP 检测脚本）
+bash <(curl -Ls https://joel.jhsweetheart.com/check-egress.sh) -4 -n -p
 
 # 本地直接跑（macOS 需 bash 4+，建议 /opt/homebrew/bin/bash）
 PATH=/opt/homebrew/bin:$PATH bash check-egress.sh -4 -n -p        # IPv4 + 终端报告
