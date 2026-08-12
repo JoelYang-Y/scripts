@@ -12,13 +12,17 @@
 ## check-egress.sh 用法（IPQuality 完整检测）
 
 ```bash
-# 用你自己的域名（check-egress.sh 就是完整 IP 检测脚本）
+# 用你自己的域名（check-egress.sh 就是完整 IP 检测脚本，无广告、无第三方链接）
 bash <(curl -Ls https://joel.jhsweetheart.com/check-egress.sh) -4 -n -p
 
 # 本地直接跑（macOS 需 bash 4+，建议 /opt/homebrew/bin/bash）
 PATH=/opt/homebrew/bin:$PATH bash check-egress.sh -4 -n -p        # IPv4 + 终端报告
 PATH=/opt/homebrew/bin:$PATH bash check-egress.sh -4 -n -j -o /tmp/ipq.json  # JSON 报告
 ```
+
+> 脚本资源文件（iso3166.json / dnsbl.list / cookies.txt / iata-icao.csv）已本地化到 `ref/`，
+> 并部署在 VPS `https://joel.jhsweetheart.com/ref/`，运行时从自己域名拉取，不依赖上游 GitHub。
+> 报告头、帮助文本、升级提示中的链接已全部替换为 `https://joel.jhsweetheart.com/check-egress.sh`。
 
 常用参数：
 
