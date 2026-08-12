@@ -12,8 +12,11 @@
 ## check-egress.sh 用法（IPQuality）
 
 ```bash
-# 完整检测（终端报告）
-bash <(curl -Ls https://Check.Place) -I          # 等价: bash check-egress.sh -4 -n
+# 用你自己的域名（自托管 Check.Place 菜单壳，-I = IP 完整检测）
+bash <(curl -Ls https://joel.jhsweetheart.com/checkplace.sh) -I
+
+# 或直接调用检测脚本（等价）
+bash <(curl -Ls https://joel.jhsweetheart.com/ip.check.place) -4 -n -p
 
 # 本地直接跑（macOS 需 bash 4+，建议 /opt/homebrew/bin/bash）
 PATH=/opt/homebrew/bin:$PATH bash check-egress.sh -4 -n -p        # IPv4 + 终端报告
