@@ -227,8 +227,33 @@ def check_domain_exit_ip(domain):
                 probe_policy = last_node
 
         def probe_ip(policy_label):
-            """强制走指定策略探测出口 IP, 返回 (ip, country, region, isp, asn) 或 None"""
+            """强制走指定策略探测出口 IP, 返回 (ip, country, region, isp, asn) 或 None
+            DIRECT 时用无代理直连查询 (ip.sb 等国内可达 API)
+            """
             try:
+                if policy_label == 'DIRECT' or 'DEVICE:' in str(policy_label):
+                    # 直连: 不走 Surge 代理, 用国内可达的 API 查询真实出口
+                    direct_opener = urllib.request.build_opener()
+                    try:
+                        resp_d = direct_opener.open("https://ip.sb", timeout=5)
+                        direct_ip = resp_d.read().decode('utf-8').strip()
+                    except Exception:
+                        direct_ip = None
+                    if direct_ip:
+                        # 用 ip-api.com 查详情 (直连)
+                        try:
+                            resp_info = direct_opener.open(f"http://ip-api.com/json/{direct_ip}", timeout=5)
+                            d = json.loads(resp_info.read().decode('utf-8'))
+                            if d.get('status') == 'success':
+                                asn_raw = d.get('as', '')
+                                asn_num = asn_raw.split()[0] if asn_raw else ''
+                                asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
+                                return (d.get('query', ''), d.get('country', ''), d.get('countryCode', ''),
+                                        d.get('regionName', ''), d.get('city', ''), d.get('isp', ''), asn_num, asn_org)
+                        except Exception:
+                            pass
+                        return (direct_ip, '', '', '', '', '', '', '')
+                # 代理策略: 用 X-Surge-Policy 强制走指定策略
                 req_ip = urllib.request.Request("http://ip-api.com/json/")
                 req_ip.add_header("X-Surge-Policy", policy_label)
                 resp_ip = opener.open(req_ip, timeout=5)
