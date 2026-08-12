@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-check_domain.py — Surge 域名出口 IP 检测工具 (v2)
+check_domain.py — Surge 域名出口 IP 检测工具 (v3)
 
 原理 (三步):
   1. 通过 Surge 代理发起 HTTPS 请求 (带 TLS SNI, 让规则引擎按域名精确匹配)
   2. 查询 Surge /v1/requests/recent, 找到该域名的连接记录, 读取:
-       - rule: 命中的规则 (含 RULE-SET 子规则 DOMAIN-KEYWORD 等)
+       - rule: 命中的规则 (DOMAIN-SUFFIX / DOMAIN-KEYWORD / RULE-SET / FINAL 等)
        - policyName: 实际路由策略
        - notes: 完整决策链 (Policy decision path: 组 -> 最终节点)
   3. 用 X-Surge-Policy 强制走该策略访问 ip-api.com, 拿真实出口 IP/国家/ASN
 
-v2 改进 (2026-08-12):
-  - 用 HTTPS 代替 HTTP HEAD 请求, 携带 TLS SNI, 规则匹配更精确
-  - 从 notes 提取 Policy decision path, 显示组内实际选择的节点
-  - 匹配逻辑增强: 兼容 URL 无域名的情况 (IP 直连/加密流量)
+v3 改进 (2026-08-12):
+  - 规则类型识别: DOMAIN-SUFFIX (精确后缀) / DOMAIN-KEYWORD (关键词, 覆盖广)
+  - 命中 DOMAIN-KEYWORD 时提示: 该关键词覆盖范围广, 服务的 IP 段流量可能
+    走其他更精确的规则 (如 Telegram.list -> Telegram 组), App 与域名可能不同路
+  - 支持输入纯关键词 (如 telegram) 也能匹配 recent 记录
+  - 显示所有相关规则类型, 不只最新一条
 """
 import urllib.request
 import json
@@ -55,45 +57,64 @@ def parse_subrule(notes):
     return None
 
 
+def classify_rule(rule_str, sub_rule_str):
+    """识别规则类型: DOMAIN-SUFFIX / DOMAIN-KEYWORD / DOMAIN / RULE-SET / IP-CIDR / FINAL"""
+    text = f"{rule_str} {sub_rule_str}".upper()
+    if 'DOMAIN-SUFFIX' in text:
+        return 'DOMAIN-SUFFIX'
+    if 'DOMAIN-KEYWORD' in text:
+        return 'DOMAIN-KEYWORD'
+    if 'DOMAIN,' in text or text.startswith('DOMAIN '):
+        return 'DOMAIN'
+    if 'IP-CIDR' in text:
+        return 'IP-CIDR'
+    if 'RULE-SET' in text:
+        return 'RULE-SET'
+    if 'FINAL' in text:
+        return 'FINAL'
+    return 'OTHER'
+
+
 def check_domain_exit_ip(domain):
     opener = make_opener()
+
+    # 判断输入是完整域名还是纯关键词
+    is_keyword = '.' not in domain
+    probe_target = domain if not is_keyword else None
 
     print(f"\n🔍 [1/3] 正在通过 Surge 发起 {domain} 的 HTTPS 请求 (携带 SNI)...")
     try:
         # 用 HTTPS (带 TLS SNI) 触发规则引擎, 2 秒超时, 成败无关
-        req = urllib.request.Request(f"https://{domain}", method='HEAD')
-        opener.open(req, timeout=2)
+        if probe_target:
+            req = urllib.request.Request(f"https://{probe_target}", method='HEAD')
+            opener.open(req, timeout=2)
     except Exception:
         pass
 
     time.sleep(0.5)  # 等 Surge 记账
 
     print(f"📊 [2/3] 正在查询 Surge 引擎, 获取命中策略...")
-    matched_policy = None
-    matched_rule = None
-    decision_path = None
-    sub_rule = None
     try:
         req_api = urllib.request.Request(API_URL, headers={"X-Key": API_KEY})
         resp = urllib.request.urlopen(req_api, timeout=3)
         data = json.loads(resp.read().decode('utf-8'))
 
-        # 优先找最近且匹配域名的记录; 兼容 URL 字段为空 (IP 直连) 时看 notes
+        # 收集所有匹配域名的记录 (含 URL / notes 里的域名 / SNI)
         candidates = []
         for r in data.get('requests', []):
             url = r.get('URL', '') or ''
             notes = r.get('notes', []) or []
-            blob = url + ' ' + ' '.join(notes)
-            # 域名匹配: URL 含域名 或 notes 里出现域名/SNI
+            blob = f"{url} {' '.join(notes)}"
             if domain.lower() in blob.lower():
                 candidates.append(r)
 
         if not candidates:
             print("❌ 未能在 Surge 中找到匹配记录, 请确保 Surge 已启动并在接管流量。")
-            print("   💡 提示: 若该服务走 IP 直连 (无域名), 可改用 IP 段关键词检测。")
+            if is_keyword:
+                print("   💡 提示: 输入的是关键词而非完整域名, 可尝试输入完整域名 (如 telegram.org)。")
             return
 
-        # 取最新一条 (列表按时间倒序, 第一条最新)
+        # 取最新一条做主结果, 同时统计所有出现的规则类型
         r = candidates[0]
         matched_policy = r.get('policyName') or r.get('originalPolicyName')
         matched_rule = r.get('rule', 'N/A')
@@ -101,12 +122,38 @@ def check_domain_exit_ip(domain):
         decision_path = parse_decision_path(notes)
         sub_rule = parse_subrule(notes)
 
+        # 统计所有候选记录里出现的规则类型
+        rule_types = set()
+        for c in candidates:
+            c_rule = c.get('rule', '')
+            c_notes = ' '.join(c.get('notes', []) or [])
+            c_sub = parse_subrule(c.get('notes', []) or []) or ''
+            rule_types.add(classify_rule(c_rule, c_sub))
+
+        rule_type = classify_rule(matched_rule, sub_rule or '')
+
         print(f"🎯 命中规则: [{matched_rule}]")
         if sub_rule:
             print(f"🔎 子规则:   [{sub_rule}]")
         print(f"🛤️ 路由策略: [{matched_policy}]")
         if decision_path:
             print(f"🔗 决策链:   {decision_path}")
+        print(f"📋 规则类型: {rule_type} (相关: {', '.join(sorted(rule_types)) if rule_types else rule_type})")
+
+        # 关键词规则提示: 覆盖广, 可能有 IP 段分流
+        if rule_type == 'DOMAIN-KEYWORD' or 'DOMAIN-KEYWORD' in rule_types:
+            print("   ⚠️ 命中【关键词规则】(DOMAIN-KEYWORD), 覆盖范围广。")
+            print("     该服务的 IP 段流量可能走其他更精确的规则 (如 xx.list 的 IP-CIDR),")
+            print("     App 实际出口可能与域名检测结果不同 (例: telegram 域名走美国家宽,")
+            print("     App IP 段走香港)。如需确认 App 路径, 查该服务 IP 段的规则。")
+
+        # DOMAIN-SUFFIX 精确提示
+        if rule_type == 'DOMAIN-SUFFIX':
+            print("   ✅ 命中【后缀规则】(DOMAIN-SUFFIX), 精确匹配, 结果可靠。")
+
+        # FINAL 兜底提示
+        if rule_type == 'FINAL':
+            print("   ⚠️ 命中【兜底规则】(FINAL), 该域名没有专门规则, 走默认策略。")
 
     except Exception as e:
         print(f"❌ 无法连接 Surge API, 请检查密码或端口配置 ({e})")
@@ -156,7 +203,7 @@ if __name__ == "__main__":
     print("==============================================")
     try:
         while True:
-            domain = input("\n👉 请输入要检测的域名 (如 www.youtube.com, 输入 q 退出): ").strip()
+            domain = input("\n👉 请输入要检测的域名或关键词 (如 www.youtube.com / telegram, 输入 q 退出): ").strip()
             if not domain:
                 continue
             if domain.lower() in ['q', 'quit', 'exit']:
