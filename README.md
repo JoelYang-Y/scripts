@@ -6,8 +6,8 @@
 
 | 脚本 | 用途 | 用法 |
 |------|------|------|
-| `check-egress.sh` | **IP 完整体检**（xykt/IPQuality v2026-08-09，即 https://IP.Check.Place）：IP 类型/纯净度/Scamalytics 评分/代理检测/流媒体解锁/邮局连通性 | 见下方 |
-| `check-site-egress.sh` | 检测指定网站在本地网络(Surge)中的实际出口 IP | `./check-site-egress.sh paypal.com` / `-j` |
+| `check-egress.sh` | **IP 完整体检**（xykt/IPQuality v2026-08-09，自托管）：IP 类型/纯净度/Scamalytics 评分/代理检测/流媒体解锁/邮局连通性 | 见下方 |
+| `check_domain.py` | 检测指定网站在本地网络(Surge)中走哪个节点、真实出口 IP（交互式） | `python3 check_domain.py` 或 `echo paypal.com \| python3 check_domain.py` |
 
 ## check-egress.sh 用法（IPQuality 完整检测）
 
@@ -39,11 +39,25 @@ PATH=/opt/homebrew/bin:$PATH bash check-egress.sh -4 -n -j -o /tmp/ipq.json  # J
 > macOS 注意：系统自带 bash 3.2 太旧，需用 Homebrew bash（`brew install bash`）。
 > Linux 直接 `./check-egress.sh -4` 即可。
 
+## check_domain.py 用法（Surge 域名出口检测）
+
+```bash
+# 交互式：逐个输入域名检测（q 退出）
+python3 check_domain.py
+
+# 单次查询
+echo "paypal.com" | python3 check_domain.py
+```
+
+原理：通过 Surge 代理发起真实请求 → 查 `/v1/requests/recent` 命中策略 →
+用 `X-Surge-Policy` 头强制走该策略探测真实出口 IP。
+**需要本机运行 Surge**（代理 127.0.0.1:6152 + API 127.0.0.1:6171）。
+
 ## 快速开始
 
 ```bash
 git clone https://github.com/JoelYang-Y/scripts.git
 cd scripts
 bash check-egress.sh -4 -n -p         # IP 完整体检
-./check-site-egress.sh paypal.com     # 查指定网站出口
+echo "paypal.com" | python3 check_domain.py   # 查指定网站出口
 ```
