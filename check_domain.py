@@ -60,6 +60,12 @@ def parse_subrule(notes):
 def classify_rule(rule_str, sub_rule_str):
     """识别规则类型: DOMAIN-SUFFIX / DOMAIN-KEYWORD / DOMAIN / RULE-SET / IP-CIDR / FINAL"""
     text = f"{rule_str} {sub_rule_str}".upper()
+    # 子规则以 . 开头 (如 .pornhub.com) = DOMAIN-SUFFIX; 以 ~ 开头 = DOMAIN-KEYWORD (Surge 语法)
+    sub = (sub_rule_str or '').strip()
+    if sub.startswith('.'):
+        return 'DOMAIN-SUFFIX'
+    if sub.startswith('~'):
+        return 'DOMAIN-KEYWORD'
     if 'DOMAIN-SUFFIX' in text:
         return 'DOMAIN-SUFFIX'
     if 'DOMAIN-KEYWORD' in text:
@@ -104,6 +110,14 @@ def check_domain_exit_ip(domain):
         if probe_target:
             req = urllib.request.Request(f"https://{probe_target}", method='HEAD')
             opener.open(req, timeout=2)
+        elif is_keyword:
+            # 纯关键词: 自动补全常见 TLD 发请求, 提高规则命中率
+            for tld in ('.com', '.org', '.net', '.io'):
+                try:
+                    req = urllib.request.Request(f"https://{domain}{tld}", method='HEAD')
+                    opener.open(req, timeout=2)
+                except Exception:
+                    pass
     except Exception:
         pass
 
@@ -133,7 +147,7 @@ def check_domain_exit_ip(domain):
             return
 
         # 取最新一条做主结果, 同时统计所有出现的规则类型
-        # IP 输入时优先选 IP-CIDR 命中的记录
+        # 优先级: IP-CIDR (IP输入) > DOMAIN-SUFFIX 精确后缀 > 完整域名子规则 > 最新记录
         r = candidates[0]
         if is_ip:
             ipcidr_cands = []
@@ -145,6 +159,31 @@ def check_domain_exit_ip(domain):
                     ipcidr_cands.append(c)
             if ipcidr_cands:
                 r = ipcidr_cands[0]
+        else:
+            # 非 IP 输入: 优先选规则更精确的记录
+            def rule_priority(c):
+                """返回优先级分数, 越低越优先"""
+                c_notes = ' '.join(c.get('notes', []) or [])
+                c_sub = parse_subrule(c.get('notes', []) or []) or ''
+                c_rule = c.get('rule', '')
+                ct = classify_rule(c_rule, c_sub)
+                score = 10  # 默认 (最新记录)
+                if ct == 'DOMAIN-SUFFIX':
+                    score = 0     # 精确后缀最优
+                elif ct == 'DOMAIN':
+                    score = 1
+                elif 'RULE-SET' in c_notes:
+                    score = 2     # 规则集 (子规则可能含完整域名)
+                elif ct == 'IP-CIDR':
+                    score = 3
+                elif ct == 'FINAL':
+                    score = 9
+                elif ct == 'DOMAIN-KEYWORD':
+                    score = 6     # 关键词覆盖广, 优先级低
+                return score
+
+            candidates.sort(key=lambda c: (rule_priority(c), -c.get('id', 0)))
+            r = candidates[0]
         matched_policy = r.get('policyName') or r.get('originalPolicyName')
         matched_rule = r.get('rule', 'N/A')
         notes = r.get('notes', []) or []
