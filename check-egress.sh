@@ -5,7 +5,7 @@ current_bash_version=$(bash --version|head -n 1|awk -F ' ' '{for (i=1; i<=NF; i+
 if [ "$current_bash_version" = "0" ]||[ "$current_bash_version" = "1" ]||[ "$current_bash_version" = "2" ]||[ "$current_bash_version" = "3" ];then
 echo "ERROR: Bash version is lower than 4.0!"
 echo "Tips: Run the following script to automatically upgrade Bash."
-echo "bash <(curl -sL https://raw.githubusercontent.com/xykt/IPQuality/main/ref/upgrade_bash.sh)"
+echo "bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh)"
 exit 0
 fi
 }
@@ -97,9 +97,9 @@ declare Media_Cookie
 declare IATA_Database
 shelp_lines=(
 "IP QUALITY CHECK SCRIPT IP质量体检脚本"
-"Interactive Interface:  bash <(curl -sL https://IP.Check.Place) -EM"
-"交互界面：              bash <(curl -sL https://IP.Check.Place) -M"
-"Parameters 参数运行: bash <(curl -sL https://IP.Check.Place) [-4] [-6] [-f] [-h] [-i iface] [-j] [-l language] [-n] [-o outputpath] [-p] [-x proxy] [-y] [-E] [-M]"
+"Interactive Interface:  bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh) -E"
+"交互界面：              bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh)"
+"Parameters 参数运行: bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh) [-4] [-6] [-f] [-h] [-i iface] [-j] [-l language] [-n] [-o outputpath] [-p] [-x proxy] [-y] [-E] [-M]"
 "            -4                             Test IPv4                                  测试IPv4"
 "            -6                             Test IPv6                                  测试IPv6"
 "            -f                             Show full IP on reports                    报告展示完整IP地址"
@@ -146,8 +146,8 @@ sinfo[ldnsbl]=28
 shead[title]="IP QUALITY CHECK REPORT: "
 shead[title_lite]="IP QUALITY CHECK REPORT(LITE): "
 shead[ver]="Version: $script_version"
-shead[bash]="bash <(curl -sL https://Check.Place) -EI"
-shead[git]="https://github.com/xykt/IPQuality"
+shead[bash]="bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh) -E"
+shead[git]="https://joel.jhsweetheart.com/check-egress.sh"
 shead[time_raw]=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 shead[time]="Report Time: ${shead[time_raw]}"
 shead[ltitle]=25
@@ -271,8 +271,8 @@ sinfo[ldnsbl]=21
 shead[title]="IP质量体检报告："
 shead[title_lite]="IP质量体检报告(Lite)："
 shead[ver]="脚本版本：$script_version"
-shead[bash]="bash <(curl -sL https://Check.Place) -I"
-shead[git]="https://github.com/xykt/IPQuality"
+shead[bash]="bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh)"
+shead[git]="https://joel.jhsweetheart.com/check-egress.sh"
 shead[time_raw]=$(TZ="Asia/Shanghai" date +"%Y-%m-%d %H:%M:%S CST")
 shead[time]="报告时间：${shead[time_raw]}"
 shead[ltitle]=16
@@ -521,10 +521,10 @@ local timeout=2
 local http_code
 http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout "$timeout" "$url" 2>/dev/null)
 if [[ $http_code == "204" ]];then
-rawgithub="https://github.com/xykt/IPQuality/raw/"
+rawgithub="https://joel.jhsweetheart.com/ref/"
 return 0
 else
-rawgithub="https://testingcf.jsdelivr.net/gh/xykt/IPQuality@"
+rawgithub="https://joel.jhsweetheart.com/ref/"
 return 1
 fi
 }
@@ -2238,9 +2238,9 @@ esac
 done
 if [[ $mode_menu -eq 1 ]];then
 if [[ $YY == "cn" ]];then
-eval "bash <(curl -sL https://Check.Place) -I"
+eval "bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh)"
 else
-eval "bash <(curl -sL https://Check.Place) -EI"
+eval "bash <(curl -sL https://joel.jhsweetheart.com/check-egress.sh) -E"
 fi
 exit 0
 fi
