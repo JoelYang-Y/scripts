@@ -183,13 +183,6 @@ def check_domain_exit_ip(domain):
         if rule_type == 'IP-CIDR' or matched_ipcidr:
             print("   ✅ 命中【IP-CIDR 规则】, 该 IP 段流量走精确路由。")
 
-        # 关键词规则提示: 覆盖广, 可能有 IP 段分流
-        if rule_type == 'DOMAIN-KEYWORD' or 'DOMAIN-KEYWORD' in rule_types:
-            print("   ⚠️ 命中【关键词规则】(DOMAIN-KEYWORD), 覆盖范围广。")
-            print("     该服务的 IP 段流量可能走其他更精确的规则 (如 xx.list 的 IP-CIDR),")
-            print("     App 实际出口可能与域名检测结果不同 (例: telegram 域名走美国家宽,")
-            print("     App IP 段走香港)。如需确认 App 路径, 查该服务 IP 段的规则。")
-
         # DOMAIN-SUFFIX 精确提示
         if rule_type == 'DOMAIN-SUFFIX':
             print("   ✅ 命中【后缀规则】(DOMAIN-SUFFIX), 精确匹配, 结果可靠。")
