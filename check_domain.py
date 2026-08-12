@@ -63,11 +63,19 @@ def check_domain_exit_ip(domain):
         ip_data = json.loads(resp_ip.read().decode('utf-8'))
         
         if ip_data['status'] == 'success':
+            # 解析 ASN (格式: "AS7018 AT&T Enterprises, LLC")
+            asn_raw = ip_data.get('as', '')
+            asn_num = asn_raw.split()[0] if asn_raw else ''
+            asn_org = ' '.join(asn_raw.split()[1:]) if asn_raw else ''
+            country_code = ip_data.get('countryCode', '')
+
             print("\n================ 最终检测结果 ================")
             print(f"🌐 域名: {domain}")
             print(f"🖥️ 出口 IP:  {ip_data['query']}")
-            print(f"📍 IP 归属地: {ip_data.get('country', '')} {ip_data.get('regionName', '')} {ip_data.get('city', '')}")
-            print(f"🏢 运营商:    {ip_data.get('isp', '')}")
+            print(f"📍 国家:     {ip_data.get('country', '')} ({country_code})")
+            print(f"🗺️  地区:     {ip_data.get('regionName', '')} {ip_data.get('city', '')}")
+            print(f"🏢 运营商:   {ip_data.get('isp', '')}")
+            print(f"🔢 ASN:      {asn_num} {asn_org}".rstrip())
             print("==============================================")
         else:
             print("❌ 获取出口 IP 详情失败。")
