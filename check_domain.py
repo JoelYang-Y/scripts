@@ -75,14 +75,30 @@ def classify_rule(rule_str, sub_rule_str):
     return 'OTHER'
 
 
+def is_ip_input(s):
+    """判断输入是否为 IP 段/IP 地址: 纯数字+点(/ 可选)"""
+    s = s.strip()
+    if not s:
+        return False
+    # 去掉 CIDR 后缀 (/xx) 后, 应只剩数字和点
+    base = s.split('/')[0]
+    if not base:
+        return False
+    return all(c.isdigit() or c == '.' for c in base) and '.' in base
+
+
 def check_domain_exit_ip(domain):
     opener = make_opener()
 
-    # 判断输入是完整域名还是纯关键词
-    is_keyword = '.' not in domain
-    probe_target = domain if not is_keyword else None
+    # 判断输入类型: 完整域名 / 纯关键词 / IP 段
+    is_ip = is_ip_input(domain)
+    is_keyword = ('.' not in domain) and not is_ip
+    probe_target = domain if (not is_keyword and not is_ip) else None
 
-    print(f"\n🔍 [1/3] 正在通过 Surge 发起 {domain} 的 HTTPS 请求 (携带 SNI)...")
+    if is_ip:
+        print(f"\n🔍 [1/3] 检测到 IP 段输入: {domain}, 将直接匹配 Surge 的 IP-CIDR 规则...")
+    else:
+        print(f"\n🔍 [1/3] 正在通过 Surge 发起 {domain} 的 HTTPS 请求 (携带 SNI)...")
     try:
         # 用 HTTPS (带 TLS SNI) 触发规则引擎, 2 秒超时, 成败无关
         if probe_target:
@@ -99,7 +115,7 @@ def check_domain_exit_ip(domain):
         resp = urllib.request.urlopen(req_api, timeout=3)
         data = json.loads(resp.read().decode('utf-8'))
 
-        # 收集所有匹配域名的记录 (含 URL / notes 里的域名 / SNI)
+        # 收集所有匹配的记录 (含 URL / notes 里的域名 / SNI / IP-CIDR)
         candidates = []
         for r in data.get('requests', []):
             url = r.get('URL', '') or ''
@@ -112,15 +128,36 @@ def check_domain_exit_ip(domain):
             print("❌ 未能在 Surge 中找到匹配记录, 请确保 Surge 已启动并在接管流量。")
             if is_keyword:
                 print("   💡 提示: 输入的是关键词而非完整域名, 可尝试输入完整域名 (如 telegram.org)。")
+            if is_ip:
+                print("   💡 提示: 该 IP 段可能在 recent 记录中没有命中记录 (服务未活动/窗口已过)。")
             return
 
         # 取最新一条做主结果, 同时统计所有出现的规则类型
+        # IP 输入时优先选 IP-CIDR 命中的记录
         r = candidates[0]
+        if is_ip:
+            ipcidr_cands = []
+            for c in candidates:
+                c_notes = ' '.join(c.get('notes', []) or [])
+                c_sub = parse_subrule(c.get('notes', []) or []) or ''
+                c_rule = c.get('rule', '')
+                if classify_rule(c_rule, c_sub) == 'IP-CIDR' or 'IP-CIDR' in c_notes:
+                    ipcidr_cands.append(c)
+            if ipcidr_cands:
+                r = ipcidr_cands[0]
         matched_policy = r.get('policyName') or r.get('originalPolicyName')
         matched_rule = r.get('rule', 'N/A')
         notes = r.get('notes', []) or []
         decision_path = parse_decision_path(notes)
         sub_rule = parse_subrule(notes)
+
+        # 提取命中的 IP-CIDR 规则 (如 "IP-CIDR 149.154.160.0/20")
+        matched_ipcidr = None
+        for n in notes:
+            m = re.search(r'(IP-CIDR[0-9a-zA-Z.:/]+(?:\(in [^)]+\))?)', n)
+            if m:
+                matched_ipcidr = m.group(1)
+                break
 
         # 统计所有候选记录里出现的规则类型
         rule_types = set()
@@ -135,10 +172,16 @@ def check_domain_exit_ip(domain):
         print(f"🎯 命中规则: [{matched_rule}]")
         if sub_rule:
             print(f"🔎 子规则:   [{sub_rule}]")
+        if matched_ipcidr:
+            print(f"🌐 IP-CIDR:  [{matched_ipcidr}]")
         print(f"🛤️ 路由策略: [{matched_policy}]")
         if decision_path:
             print(f"🔗 决策链:   {decision_path}")
         print(f"📋 规则类型: {rule_type} (相关: {', '.join(sorted(rule_types)) if rule_types else rule_type})")
+
+        # IP-CIDR 命中提示
+        if rule_type == 'IP-CIDR' or matched_ipcidr:
+            print("   ✅ 命中【IP-CIDR 规则】, 该 IP 段流量走精确路由。")
 
         # 关键词规则提示: 覆盖广, 可能有 IP 段分流
         if rule_type == 'DOMAIN-KEYWORD' or 'DOMAIN-KEYWORD' in rule_types:
