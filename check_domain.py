@@ -229,7 +229,12 @@ def probe_ip_egress(opener, policy_label):
                 return (direct_ip, '', '', '', '', '', '', '')
         # 代理策略: 用 X-Surge-Policy 强制走指定策略
         req_ip = urllib.request.Request("http://ip-api.com/json/")
-        req_ip.add_header("X-Surge-Policy", policy_label)
+        # 中文策略名 (如 节点选择) 需用 utf-8→latin-1 技巧编码, 否则 urllib latin-1 报错
+        if any(ord(c) > 127 for c in str(policy_label)):
+            policy_header = str(policy_label).encode('utf-8').decode('latin-1')
+        else:
+            policy_header = str(policy_label)
+        req_ip.add_header("X-Surge-Policy", policy_header)
         resp_ip = opener.open(req_ip, timeout=5)
         d = json.loads(resp_ip.read().decode('utf-8'))
         if d.get('status') == 'success':
