@@ -1,49 +1,35 @@
 # ==============================================================================
-# 服务名称: Beszel Hub & Agent (轻量级跨平台资源与主机性能监控中心)
+# 服务名称: Beszel Hub & Agent (极空间系统与容器性能监控全套)
 # 部署方式: Docker Compose
-# 架构说明: 统一收集 Mac mini / NAS / PVE Harness (10.0.0.5) / VPS 主机与 Docker 指标
+# 架构说明: 统一收集 NAS 自身、Mac mini、PVE Harness (10.0.0.5)、VPS 主机与 Docker 指标
 # ==============================================================================
 
 version: '3.8'
 
 services:
+  # 中心服务端 (Web 管理控制台)
   beszel-hub:
-    # 容器镜像: Beszel Hub 中心控制台
     image: docker.1ms.run/henrygd/beszel:latest
-    
-    # 容器名称
     container_name: beszel-hub
-    
-    # 重启策略
     restart: unless-stopped
-    
-    # 端口映射: [宿主机端口:容器内端口]
     ports:
-      # Web 控制台端口 (宿主机 8095 映射容器内 8090)
       - "8095:8090"
-      
-    # 数据持久化挂载
-    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/beszel/data
     volumes:
       - ./data:/beszel_data
-      
-    # 环境变量
     environment:
       - TZ=Asia/Shanghai
 
-  # ============================================================================
-  # Beszel Agent (NAS 本地探针模板)
-  # 使用指南: 在 Hub 网页 (http://10.0.0.3:8095) 创建管理员并获取系统公钥 (KEY) 后，
-  # 取消以下注释，填入 KEY 并执行 docker compose up -d 即可启动 NAS 自身监控。
-  # ============================================================================
-  # beszel-agent:
-  #   image: docker.1ms.run/henrygd/beszel-agent:latest
-  #   container_name: beszel-agent
-  #   restart: unless-stopped
-  #   network_mode: host
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   environment:
-  #     - TZ=Asia/Shanghai
-  #     - PORT=45876
-  #     - KEY=YOUR_BESZEL_PUBLIC_KEY
+  # NAS 本地系统与容器监控探针
+  beszel-agent:
+    image: docker.1ms.run/henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      # 挂载 Docker socket 监控 NAS 上的全部容器状态与资源
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - PORT=45876
+      # Hub 生成的安全认证公钥 (与 8095 控制台配对)
+      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIODn+CqgzpJ65PaOUL6MwueWlGh/MryzDBMAvWYAOtad
