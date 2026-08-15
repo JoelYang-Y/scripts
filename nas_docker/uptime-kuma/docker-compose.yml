@@ -1,0 +1,33 @@
+# ==============================================================================
+# 服务名称: Uptime Kuma (自建轻量级服务可用性与网络监控系统)
+# 部署方式: Docker Compose
+# 架构说明: 监控 NAS 服务 (Emby/SubStore/Lucky)、VPS 节点、美国家宽出口及 DNS 链连通性
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  uptime-kuma:
+    # 容器镜像: Uptime Kuma 官方最新镜像 (国内加速拉取)
+    image: docker.1ms.run/louislam/uptime-kuma:latest
+    
+    # 容器名称
+    container_name: uptime-kuma
+    
+    # 重启策略: 容器异常退出或系统重启时自动拉起
+    restart: unless-stopped
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # Web 控制台与 API 端口 (宿主机 3005 映射容器内默认服务端口 3001)
+      - "3005:3001"
+      
+    # 数据卷挂载: 持久化存储 SQLite 数据库、监控探针记录与告警配置
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/uptime-kuma/data
+    volumes:
+      - ./data:/app/data
+      
+    # 环境变量配置
+    environment:
+      # 系统时区: 确保监控图表与日志时间对齐北京时间
+      - TZ=Asia/Shanghai

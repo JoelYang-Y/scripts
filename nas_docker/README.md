@@ -23,6 +23,8 @@
 | [`lucky`](./lucky/) | **Lucky** | 动态域名 (DDNS)、反向代理与 STUN 打洞 | **Host** | `16601` | 网卡物理监听与 SSL 自动续期 |
 | [`music-tag-web`](./music-tag-web/) | **Music-Tag-Web** | 网页端音乐标签、封面自动刮削整理 | Bridge | `8002` | 音乐库 ID3 标签批量写入 |
 | [`navidrome`](./navidrome/) | **Navidrome** | 现代化个人音乐流媒体服务器 (Subsonic) | Bridge | `4533` | 兼容全平台 Subsonic 客户端 |
+| [`uptime-kuma`](./uptime-kuma/) | **Uptime Kuma** | 服务可用性监控与 Telegram 探针告警 | Bridge | `3005` | SQLite 数据库与探针历史 |
+| [`beszel`](./beszel/) | **Beszel** | 极轻量级跨平台系统与 Docker 性能监控 | Bridge/Host | `8095`, `45876` | Hub 内存 < 20MB，多节点直连 |
 
 ---
 
@@ -67,7 +69,13 @@ nas_docker/
 ├── music-tag-web/
 │   ├── docker-compose.yml
 │   └── README.md
-└── navidrome/
+├── navidrome/
+│   ├── docker-compose.yml
+│   └── README.md
+├── uptime-kuma/
+│   ├── docker-compose.yml
+│   └── README.md
+└── beszel/
     ├── docker-compose.yml
     └── README.md
 ```
