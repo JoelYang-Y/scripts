@@ -20,7 +20,6 @@
 | [`moviepilot-v2`](./moviepilot-v2/) | **MoviePilot-v2** | 影视自动化下载、刮削与入库中枢 | **Host** | `3000` | 特权模式，支持跨目录硬链接入库 |
 | [`chinesesubfinder`](./chinesesubfinder/) | **ChineseSubFinder**| 中文字幕自动化下载与匹配助手 | **Host** | `19035` | 媒体库读写挂载 |
 | [`qbittorrent`](./qbittorrent/) | **qBittorrent** | 全功能 PT/BT 高性能下载利器 | **Host** | `8989`, `6881` | 自动 Tracker 更新与吸血防护 |
-| [`lucky`](./lucky/) | **Lucky** | 动态域名 (DDNS)、反向代理与 STUN 打洞 | **Host** | `16601` | 网卡物理监听与 SSL 自动续期 |
 | [`music-tag-web`](./music-tag-web/) | **Music-Tag-Web** | 网页端音乐标签、封面自动刮削整理 | Bridge | `8002` | 音乐库 ID3 标签批量写入 |
 | [`navidrome`](./navidrome/) | **Navidrome** | 现代化个人音乐流媒体服务器 (Subsonic) | Bridge | `4533` | 兼容全平台 Subsonic 客户端 |
 | [`uptime-kuma`](./uptime-kuma/) | **Uptime Kuma** | 服务可用性监控与 Telegram 探针告警 | Bridge | `3005` | SQLite 数据库与探针历史 |
@@ -61,9 +60,6 @@ nas_docker/
 │   ├── docker-compose.yml
 │   └── README.md
 ├── qbittorrent/
-│   ├── docker-compose.yml
-│   └── README.md
-├── lucky/
 │   ├── docker-compose.yml
 │   └── README.md
 ├── music-tag-web/
