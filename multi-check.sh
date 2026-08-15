@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # multi-check.sh - 增强型多功能 IP 及环境检测脚本
 # 由 DeepSeek Harness (Vertex AI 驱动) 生成并由 Hermes 优化
+#
+# 使用方法 (Usage):
+#   1. 远程一键运行: 
+#      bash <(curl -sL https://raw.githubusercontent.com/JoelYang-Y/scripts/main/multi-check.sh)
+#
+#   2. 本地/手动运行:
+#      chmod +x multi-check.sh
+#      ./multi-check.sh           (检测当前环境)
+#      ./multi-check.sh 8.8.8.8   (检测指定 IP)
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
