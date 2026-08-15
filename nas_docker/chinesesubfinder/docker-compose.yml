@@ -1,0 +1,58 @@
+# ==============================================================================
+# 服务名称: ChineseSubFinder (中文字幕自动化下载助手)
+# 部署方式: Docker Compose
+# 架构说明: 自动化监控影视媒体库，通过射手网、SubHD、字幕库等来源自动匹配下载高质量中文字幕
+# ==============================================================================
+
+services:
+  chinesesubfinder:
+    # 容器镜像: ChineseSubFinder 官方镜像
+    image: allanpk716/chinesesubfinder:latest
+    
+    # 容器名称
+    container_name: chinesesubfinder
+    
+    # 网络模式: host 主机网络模式
+    network_mode: host
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # Linux 安全能力扩展
+    cap_add:
+      - AUDIT_WRITE
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - MKNOD
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETFCAP
+      - SETGID
+      - SETPCAP
+      - SETUID
+      - SYS_CHROOT
+      
+    # 数据卷挂载: 配置文件与影视媒体库 [宿主机相对/绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   配置目录: /tmp/zfsv3/sata12/18332733294/data/docker/csf/config
+    #   媒体目录: /tmp/zfsv3/sata12/18332733294/data/media
+    volumes:
+      # 配置文件与字幕下载缓存
+      - ./config:/config
+      # 媒体存储根目录 (需要有写入权限以便将 .srt/.ass 字幕写入视频同级目录)
+      - /media:/media
+      
+    # 环境变量配置
+    environment:
+      # 系统时区
+      - TZ=Asia/Shanghai
+      # 启用文件权限自动修正
+      - PERMS=true
+      # 运行用户 UID / GID: 匹配 NAS 用户权限
+      - PUID=1026
+      - PGID=100
+      # 文件创建权限掩码
+      - UMASK=022

@@ -1,0 +1,50 @@
+# ==============================================================================
+# 服务名称: Lucky (全能大吉软硬路由与公网打洞辅助工具)
+# 部署方式: Docker Compose
+# 架构说明: 集成动态域名解析 (DDNS)、反向代理、端口转发、STUN 公网打洞、网络唤醒 (WOL) 与 SSL 证书自动申请
+# ==============================================================================
+
+services:
+  lucky:
+    # 容器镜像: Lucky 官方最新镜像
+    image: gdy666/lucky:latest
+    
+    # 容器名称
+    container_name: lucky
+    
+    # 网络模式: host 主机网络模式 (必须使用 host 模式以获取宿主机所有物理网卡 IP 与端口转发能力)
+    network_mode: host
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # Linux 安全能力扩展: 赋予网络管理与底层套接字绑定权限
+    cap_add:
+      - AUDIT_WRITE
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - MKNOD
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETFCAP
+      - SETGID
+      - SETPCAP
+      - SETUID
+      - SYS_CHROOT
+      
+    # 数据卷挂载: 持久化配置文件、规则库与 SSL 证书
+    # 原 NAS 容器内置存储，建议使用外部挂载 ./goodluck:/goodluck 确保持久化
+    volumes:
+      # Lucky 主配置与证书存储目录
+      - ./goodluck:/goodluck
+      
+    # 环境变量配置
+    environment:
+      # 系统时区
+      - TZ=Asia/Shanghai
+      
+    # 容器启动命令: 指定配置文件路径并在 Docker 模式下运行
+    command: ["-c", "/goodluck/lucky.conf", "-runInDocker"]

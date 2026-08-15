@@ -1,0 +1,77 @@
+# ==============================================================================
+# 服务名称: Homelable (家庭网络拓扑与资产可视化看板)
+# 部署方式: Docker Compose (双容器架构: 前端 Nginx + 后端 Python FastAPI/Uvicorn)
+# 架构说明: 自动扫描内网设备、监控主机状态、拓扑可视化与网络资产看板
+# ==============================================================================
+
+services:
+  # 后端服务: 负责网络扫描、SQLite 数据库操作与 API 接口提供
+  backend:
+    # 容器镜像: Homelable 官方后端镜像
+    image: ghcr.io/pouzor/homelable-backend:latest
+    
+    # 容器名称
+    container_name: homelable-backend
+    
+    # 重启策略: 容器意外退出时自动重启
+    restart: unless-stopped
+    
+    # Linux 内核权限能力: 赋予网络管理与原始套接字权限，用于内网 ARP/ICMP 探测与设备发现
+    cap_add:
+      # 网络管理员权限: 允许配置网络接口与路由表探测
+      - NET_ADMIN
+      # 原始套接字权限: 允许发送 ICMP Ping 与 ARP 扫描数据包
+      - NET_RAW
+      
+    # 数据卷挂载: 持久化后端 SQLite 数据库及应用配置
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/data
+    volumes:
+      - ./data:/app/data
+      
+    # 环境变量配置
+    environment:
+      # 管理员登录用户名
+      - AUTH_USERNAME=JHSweetheart
+      # 管理员登录密码的 Bcrypt 哈希值
+      - AUTH_PASSWORD_HASH=$2b$12$u0Covfj10O3hnjB3iD1BlekQ1.MyjEt4j0k9S4nsySu7GaVIeFHY2
+      # 局域网扫描网段 (JSON 数组格式)
+      - SCANNER_RANGES=["10.0.0.0/24"]
+      # 主机状态检测间隔时间 (单位: 秒)
+      - STATUS_CHECKER_INTERVAL=60
+      # 数据库连接 URL (使用 SQLite 本地数据库)
+      - DATABASE_URL=sqlite:///data/homelable.db
+      # 会话加解密安全密钥
+      - SECRET_KEY=homelable_secure_secret_key_change_me
+      
+    # 容器启动命令: 启动 Uvicorn ASGI 服务器，监听容器内部 8000 端口
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  # 前端服务: 基于 Nginx 的 Web 静态页面展示与 API 请求反向代理
+  frontend:
+    # 容器镜像: Homelable 官方前端镜像
+    image: ghcr.io/pouzor/homelable-frontend:latest
+    
+    # 容器名称
+    container_name: homelable-frontend
+    
+    # 重启策略
+    restart: unless-stopped
+    
+    # 依赖关系: 确保后端服务启动后再启动前端
+    depends_on:
+      - backend
+      
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # Web 前端访问端口 (宿主机 3003 映射容器内 Nginx 80 端口)
+      - "3003:80"
+      
+    # 数据卷挂载: 前端静态 HTML/JS 资源
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/html
+    volumes:
+      - ./html:/usr/share/nginx/html
+      
+    # 环境变量配置
+    environment:
+      # 后端 API 服务地址 (在同一 Compose 网络下直接使用后端容器名 backend:8000)
+      - BACKEND_URL=http://backend:8000

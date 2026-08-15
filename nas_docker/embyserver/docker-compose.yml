@@ -1,0 +1,72 @@
+# ==============================================================================
+# 服务名称: Emby Server (家庭影音媒体服务器)
+# 部署方式: Docker Compose
+# 架构说明: 集中管理电影、电视剧、动漫、音乐等媒体库，支持 Intel 核显 QSV / VAAPI 硬件转码
+# ==============================================================================
+
+services:
+  embyserver:
+    # 容器镜像: amilys/embyserver (含开心版/增强转码支持)
+    image: amilys/embyserver:latest
+    
+    # 容器名称
+    container_name: embyserver
+    
+    # 网络模式: host 主机网络模式 (保障 DLNA/UPnP 广播发现、低延迟推流与多端口监听)
+    network_mode: host
+    
+    # 特权模式: 赋予容器完全硬件访问权限 (用于调用 Intel GPU 转码与多媒体驱动)
+    privileged: true
+    
+    # 重启策略: 容器异常或主机重启时始终重启
+    restart: always
+    
+    # 硬件设备直通: 映射核显渲染节点，开启 VAAPI / Intel QuickSync 硬解硬编
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      
+    # Linux 安全能力扩展
+    cap_add:
+      - AUDIT_WRITE
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - MKNOD
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETFCAP
+      - SETGID
+      - SETPCAP
+      - SETUID
+      - SYS_CHROOT
+      
+    # 数据卷挂载: 配置文件与影视媒体库 [宿主机相对路径或绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   配置目录: /tmp/zfsv3/sata12/18332733294/data/docker/emby/config
+    #   媒体目录: /tmp/zfsv3/sata12/18332733294/data/media
+    volumes:
+      # Emby 配置文件、数据库与元数据缓存目录
+      - ./config:/config
+      # 媒体存储根目录 (包含 movies, tv, anime, music 等)
+      - /media:/media
+      
+    # 环境变量配置
+    environment:
+      # 运行身份 UID / GID: 设置为 0 (root) 确保对挂载硬盘与媒体文件的完全读写权限
+      - UID=0
+      - GID=0
+      - GIDLIST=0
+      # 系统时区
+      - TZ=Asia/Shanghai
+      # 强制启用 VAAPI 硬件加速检测
+      - IGNORE_VAAPI_ENABLED_FLAG=false
+      # 转码与图片缓存目录指定
+      - XDG_CACHE_HOME=/config/cache
+      # Intel OpenCL / Neo 驱动调试与显存优化参数
+      - NEOReadDebugKeys=1
+      - OverrideGpuAddressSpace=48
+      # NVIDIA 显卡调用支持 (如有独显)
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility

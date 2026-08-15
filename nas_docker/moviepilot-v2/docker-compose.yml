@@ -1,0 +1,68 @@
+# ==============================================================================
+# 服务名称: MoviePilot-v2 (自动化影视库整理与下载管理中枢)
+# 部署方式: Docker Compose
+# 架构说明: 整合 PT/BT 搜索、自动下载、刮削、硬链接整理、Emby 通知与微信/Telegram 交互的一站式影视管理系统
+# ==============================================================================
+
+services:
+  moviepilot-v2:
+    # 容器镜像: MoviePilot 官方 v2 镜像 (国内拉取慢可用 docker.1ms.run/jxxghp/moviepilot-v2:latest)
+    image: jxxghp/moviepilot-v2:latest
+    
+    # 容器名称
+    container_name: moviepilot-v2
+    
+    # 网络模式: host 主机网络模式 (方便发现并直连局域网内 qBittorrent, Emby, NAS 等服务)
+    network_mode: host
+    
+    # 特权模式: 赋予最高权限以便在不同挂载盘之间建立硬链接 (Hardlink)
+    privileged: true
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # Linux 安全能力扩展
+    cap_add:
+      - AUDIT_WRITE
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - MKNOD
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETFCAP
+      - SETGID
+      - SETPCAP
+      - SETUID
+      - SYS_CHROOT
+      
+    # 数据卷挂载: 配置文件、浏览器核心缓存与媒体库目录 [宿主机相对/绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   配置目录: /tmp/zfsv3/sata12/18332733294/data/docker/moviepilot/config
+    #   核心缓存: /tmp/zfsv3/sata12/18332733294/data/docker/moviepilot/core
+    #   媒体目录: /tmp/zfsv3/sata12/18332733294/data/media
+    volumes:
+      # MoviePilot 配置、插件及 SQLite 数据库
+      - ./config:/config
+      # Playwright 无头浏览器核心缓存持久化 (避免每次更新重新下载浏览器二进制)
+      - ./core:/moviepilot/.cache/ms-playwright
+      # 媒体存储根目录 (包含下载源目录与最终媒体库，支持跨目录硬链接)
+      - /media:/media
+      
+    # 环境变量配置
+    environment:
+      # 系统时区: 保证定时任务与日志时间准确
+      - TZ=Asia/Shanghai
+      # 指定配置目录路径
+      - CONFIG_DIR=/config
+      # 运行用户 UID / GID: 设置为 0 (root) 确保能够跨目录创建硬链接和文件转移
+      - PUID=0
+      - PGID=0
+      # 文件创建权限掩码 (000 保证所有生成的文件全权限)
+      - UMASK=000
+      # 是否在容器启动时自动拉取代码更新 (推荐 false 保证生产稳定性)
+      - MOVIEPILOT_AUTO_UPDATE=false
+      # GitHub 加速代理 (用于国内环境下下载插件与站点规则)
+      - GITHUB_PROXY=https://gh-proxy.org/

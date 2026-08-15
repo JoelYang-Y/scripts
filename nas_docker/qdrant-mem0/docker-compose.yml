@@ -1,0 +1,39 @@
+# ==============================================================================
+# 服务名称: Qdrant-Mem0 (Hermes Agent 长期记忆向量数据库)
+# 部署方式: Docker Compose
+# 架构说明: 高性能开源向量搜索引擎，为 Mem0 / Hermes AI Agent 提供 Dense+BM25 混合检索支持
+# ==============================================================================
+
+services:
+  qdrant:
+    # 容器镜像: Qdrant 官方最新稳定版
+    image: qdrant/qdrant:latest
+    
+    # 容器名称: 在 Docker 中命名为 qdrant-mem0
+    container_name: qdrant-mem0
+    
+    # 重启策略: 异常退出时自动重启
+    restart: unless-stopped
+    
+    # 运行用户: root 权限运行保证对持久化目录的完全读写
+    user: "0:0"
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # REST API 访问端口 (Mem0 SDK / HTTP 客户端连接)
+      - "6333:6333"
+      # gRPC 通信端口 (高性能向量检索)
+      - "6334:6334"
+      
+    # 数据卷挂载: 持久化向量索引、Payload 与 Snapshot [宿主机相对路径:容器内绝对路径]
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/hermesmemory/qdrant_data
+    volumes:
+      # Qdrant 存储目录 (包含 collections/hermes_memories_v2_hybrid 等)
+      - ./qdrant_data:/qdrant/storage
+      
+    # 环境变量配置
+    environment:
+      # 系统时区
+      - TZ=Asia/Shanghai
+      # 运行模式: 生产模式优化
+      - RUN_MODE=production

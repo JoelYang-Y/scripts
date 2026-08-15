@@ -1,0 +1,43 @@
+# ==============================================================================
+# 服务名称: Music-Tag-Web (在线音乐标签与封面批量编辑整理工具)
+# 部署方式: Docker Compose
+# 架构说明: 基于 WebUI 的音频元数据抓取工具，支持从网易云、QQ音乐、酷狗等平台批量自动写入 ID3 标签与高清封面
+# ==============================================================================
+
+services:
+  music-tag-web:
+    # 容器镜像: xhongc/music_tag_web 官方镜像
+    image: xhongc/music_tag_web:latest
+    
+    # 容器名称
+    container_name: music-tag-web
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # Web 管理界面端口 (宿主机 8002 映射容器内 8002)
+      - "8002:8002"
+      
+    # 数据卷挂载: 配置文件与音乐文件库 [宿主机相对/绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   配置目录: /tmp/zfsv3/sata12/18332733294/data/docker/musictag/config
+    #   音乐目录: /tmp/zfsv3/sata12/18332733294/data/media/music
+    volumes:
+      # 配置文件与刮削缓存
+      - ./config:/app/data
+      # 音乐存储目录 (读写挂载，以便直接修改音频文件的 ID3 标签与内嵌封面)
+      - /media/music:/app/media
+      
+    # 环境变量配置
+    environment:
+      # 运行环境: 生产环境模式
+      - BUILD_ENV=prod
+      # 运行用户 UID / GID: 设置为 0 (root) 保证对音频文件的直接读写修改权限
+      - PUID=0
+      - PGID=0
+      # 权限掩码
+      - UMASK=022
+      # 系统时区
+      - TZ=Asia/Shanghai

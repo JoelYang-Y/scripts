@@ -1,0 +1,36 @@
+# ==============================================================================
+# 服务名称: OpenSpeedTest (HTML5 网络测速工具)
+# 部署方式: Docker Compose
+# 架构说明: 基于 Nginx Alpine 驱动的高性能局域网/广域网测速服务器，免客户端免 Flash
+# ==============================================================================
+
+services:
+  openspeedtest:
+    # 容器镜像: 官方标准 nginx:alpine 镜像 (国内拉取慢可用 docker.1ms.run/library/nginx:alpine)
+    image: nginx:alpine
+    
+    # 容器名称: 便于在 docker ps 和日志中识别
+    container_name: openspeedtest
+    
+    # 重启策略: 容器退出时自动重启，除非手动停止 (适用于长期稳定运行的后台服务)
+    restart: unless-stopped
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # 测速主端口 (极空间默认 6680 映射容器内 3000)
+      - "6680:3000"
+      # 备用/备选测速端口 (映射容器内 3000)
+      - "3004:3000"
+      
+    # 数据卷挂载: 持久化配置文件与测速静态页面 [宿主机相对路径:容器内绝对路径:权限]
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/openspeedtest/
+    volumes:
+      # Nginx 配置文件 (只读挂载，定义测速 chunk 大小与缓存规则)
+      - ./conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # 测速 WebUI 静态文件与测速数据 payload 文件 (只读挂载)
+      - ./www:/usr/share/nginx/html:ro
+      
+    # 环境变量配置
+    environment:
+      # 系统时区: 确保日志时间与北京时间一致
+      - TZ=Asia/Shanghai

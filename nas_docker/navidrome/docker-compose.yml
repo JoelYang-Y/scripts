@@ -1,0 +1,46 @@
+# ==============================================================================
+# 服务名称: Navidrome (现代化个人音乐流媒体服务器)
+# 部署方式: Docker Compose
+# 架构说明: 超轻量级、高性能音乐服务器，完全兼容 Subsonic / OpenSubsonic API，支持全平台客户端播放
+# ==============================================================================
+
+services:
+  navidrome:
+    # 容器镜像: Navidrome 官方镜像
+    image: deluan/navidrome:latest
+    
+    # 容器名称
+    container_name: navidrome
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # WebUI 与 Subsonic API 服务端口 (宿主机 4533 映射容器内 4533)
+      - "4533:4533"
+      
+    # 数据卷挂载: 持久化数据库与音乐库目录 [宿主机相对/绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   数据目录: /tmp/zfsv3/sata12/18332733294/data/docker/navidrome/data
+    #   音乐目录: /tmp/zfsv3/sata12/18332733294/data/media/music
+    volumes:
+      # Navidrome 数据目录 (存放 SQLite 数据库 navidrome.db 与艺术家图片缓存)
+      - ./data:/data
+      # 音乐存储根目录 (只读挂载即可，保护音乐文件安全)
+      - /media/music:/music:ro
+      
+    # 环境变量配置
+    environment:
+      # 音乐库读取路径 (与容器内挂载点保持一致)
+      - ND_MUSICFOLDER=/music
+      # 数据库与缓存存放路径
+      - ND_DATAFOLDER=/data
+      # 配置文件路径
+      - ND_CONFIGFILE=/data/navidrome.toml
+      # 服务监听端口
+      - ND_PORT=4533
+      # 系统时区
+      - TZ=Asia/Shanghai
+      # Go 运行时抢占调度调优参数
+      - GODEBUG=asyncpreemptoff=1

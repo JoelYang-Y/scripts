@@ -1,0 +1,52 @@
+# ==============================================================================
+# 服务名称: Syncthing (去中心化多端文件实时同步服务)
+# 部署方式: Docker Compose
+# 架构说明: 用于 Obsidian 笔记库、手机相册、文档在 Mac / 手机 / NAS 间多向连续同步
+# 极空间踩坑要点: 宿主机 22000 端口已被极空间系统 autoBackup 内置 syncthing 占用，
+#               本 Docker 容器必须将文件传输端口映射为 22002，否则会导致宿主进程冲突崩溃！
+# ==============================================================================
+
+services:
+  syncthing:
+    # 容器镜像: Syncthing 官方最新镜像
+    image: syncthing/syncthing:latest
+    
+    # 容器名称
+    container_name: syncthing
+    
+    # 重启策略: 容器异常退出时自动重启
+    restart: unless-stopped
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # Web GUI 管理面板端口 (建议绑定 NAS 内网 IP 或 0.0.0.0)
+      - "8384:8384"
+      # 文件同步传输 TCP 端口 (宿主机 22002 映射容器内 22000，避开极空间系统 22000 端口)
+      - "22002:22000/tcp"
+      # 文件同步传输 UDP/QUIC 端口 (宿主机 22002 映射容器内 22000)
+      - "22002:22000/udp"
+      # 本地区域网络发现广播端口 (用于局域网设备自动发现)
+      - "21027:21027/udp"
+      
+    # 数据卷挂载: 持久化配置、同步目录与数据 [宿主机相对路径:容器内绝对路径]
+    # 原 NAS 宿主机实际路径: /data_s002/syncthing/
+    volumes:
+      # 配置文件目录 (存放 config.xml、TLS 证书及索引数据库)
+      - ./config:/var/syncthing/config
+      # 同步文件主目录 (Obsidian Vault 与主要同步文件)
+      - ./sync:/var/syncthing/sync
+      # 额外数据存储目录
+      - ./data:/var/syncthing/data
+      
+    # 环境变量配置
+    environment:
+      # 系统时区: 保持日志与文件修改时间戳准确
+      - TZ=Asia/Shanghai
+      # Web GUI 监听地址: 允许从所有网卡 IP 访问 Web 页面
+      - STGUIADDRESS=0.0.0.0:8384
+      # 指定 Syncthing 主配置路径
+      - STHOMEDIR=/var/syncthing/config
+      # 运行用户 UID: 映射为普通用户权限，防止权限混乱
+      - PUID=1000
+      # 运行用户 GID: 映射为普通用户组
+      - PGID=1000

@@ -1,0 +1,77 @@
+# ==============================================================================
+# 服务名称: qBittorrent-Enhanced-Edition (全功能 BT/PT 下载利器)
+# 部署方式: Docker Compose
+# 架构说明: 具备屏蔽吸血客户端 (迅雷等)、自动更新 Tracker 列表与高性能磁盘 I/O 的下载服务器
+# ==============================================================================
+
+services:
+  qbittorrent:
+    # 容器镜像: johngong/qbittorrent (集成屏蔽吸血客户端与增强特性的优质镜像)
+    image: johngong/qbittorrent:4.6.7-4.6.7.10
+    
+    # 容器名称
+    container_name: qbittorrent
+    
+    # 网络模式: host 主机网络模式 (保障 BT 监听端口 6881 获得最高连接数与公网入站连接)
+    network_mode: host
+    
+    # 特权模式: 提高网络性能与磁盘调度优先级
+    privileged: true
+    
+    # 重启策略: 始终自动重启
+    restart: always
+    
+    # Linux 安全能力扩展
+    cap_add:
+      - AUDIT_WRITE
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - MKNOD
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SETFCAP
+      - SETGID
+      - SETPCAP
+      - SETUID
+      - SYS_CHROOT
+      
+    # 数据卷挂载: 配置文件、下载目录与完整媒体库 [宿主机相对/绝对路径:容器内路径]
+    # 原 NAS 宿主机实际路径:
+    #   配置目录: /tmp/zfsv3/sata12/18332733294/data/docker/qb/config
+    #   下载目录: /tmp/zfsv3/sata12/18332733294/data/media/download
+    #   媒体目录: /tmp/zfsv3/sata12/18332733294/data/media
+    volumes:
+      # qBittorrent 配置文件、BT 种子状态数据库与 FastResume 数据
+      - ./config:/config
+      # 默认下载存储路径
+      - /media/download:/Downloads
+      # 完整媒体库根目录 (支持跨文件夹硬链接与做种管理)
+      - /media:/media
+      
+    # 环境变量配置
+    environment:
+      # 运行用户 UID / GID: 0 (root 权限运行)
+      - UID=0
+      - GID=0
+      # 文件权限掩码
+      - UMASK=022
+      # 系统时区
+      - TZ=Asia/Shanghai
+      # WebUI 访问端口 (配置为 8989 避开常用 8080 冲突)
+      - QB_WEBUI_PORT=8989
+      # 是否使用 EE (Enhanced Edition) 二进制
+      - QB_EE_BIN=false
+      # 是否自动更新 Public Tracker 列表 (加速公网种子下载)
+      - QB_TRACKERS_UPDATE_AUTO=true
+      # Tracker 自动更新源 URL
+      - QB_TRACKERS_LIST_URL=https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt
+      # 下载完成后自动修正文件权限所有者
+      - ENABLE_CHOWN_DOWNLOADS=true
+      - ENABLE_CHOWN_R_DOWNLOADS=true
+      # 默认下载目标路径
+      - QB_DOWNLOADS_DIRECTORY=/Downloads
+      # S6 服务管理器超时设置
+      - S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0

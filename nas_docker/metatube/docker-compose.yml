@@ -1,0 +1,39 @@
+# ==============================================================================
+# 服务名称: MetaTube Server (多媒体元数据智能刮削后端)
+# 部署方式: Docker Compose
+# 架构说明: 针对日韩/欧美等特殊影片的高精度元数据抓取与刮削服务器，配合 Emby/Jellyfin 插件使用
+# ==============================================================================
+
+services:
+  metatube:
+    # 容器镜像: MetaTube 官方镜像
+    image: ghcr.io/metatube-community/metatube-server:latest
+    
+    # 容器名称
+    container_name: metatube
+    
+    # 重启策略: 容器意外退出时自动重启
+    restart: unless-stopped
+    
+    # 端口映射: [宿主机端口:容器内端口]
+    ports:
+      # MetaTube Server API 监听端口 (宿主机 8081 映射容器内 8080)
+      - "8081:8080"
+      
+    # 数据卷挂载: 持久化 SQLite 数据库与刮削缓存
+    # 原 NAS 宿主机实际路径: /tmp/zfsv3/sata12/18332733294/data/docker/metatube/data
+    volumes:
+      # 数据目录 (存放 metatube.db)
+      - ./data:/data
+      
+    # 环境变量配置: 局域网网络代理 (用于访问外部元数据源)
+    environment:
+      # HTTP 代理地址 (指向局域网 Surge / Clash 代理端口)
+      - HTTP_PROXY=http://10.0.0.2:6152
+      # HTTPS 代理地址
+      - HTTPS_PROXY=http://10.0.0.2:6152
+      # 系统时区
+      - TZ=Asia/Shanghai
+      
+    # 容器启动参数: 指定 SQLite 数据库路径、服务端口并开启自动数据库迁移
+    command: -dsn "/data/metatube.db" -port 8080 -db-auto-migrate
