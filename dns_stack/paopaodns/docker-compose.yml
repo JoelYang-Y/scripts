@@ -1,0 +1,26 @@
+services:
+  paopaodns:
+    image: sliamb/paopaodns:latest
+    container_name: paopaodns
+    volumes:
+      - ./data:/data
+    environment:
+      CNAUTO: "yes"
+      DNS_SERVERNAME: "dns.home"
+      TZ: "Asia/Shanghai"
+      UPDATE: "daily"
+      IPV6: "yes"
+      CNFALL: "yes"
+      EXPIRED_FLUSH: "yes"
+      CUSTOM_FORWARD_TTL: "300"
+      ADDINFO: "yes"
+      USE_MARK_DATA: "yes"
+      CN_TRACKER: "yes"
+      HTTP_FILE: "yes"
+    restart: always
+    ports:
+      - "5335:53/tcp"
+      - "5335:53/udp"
+      - "5304:5304/tcp"
+      - "5304:5304/udp"
+      - "7889:7889/tcp"

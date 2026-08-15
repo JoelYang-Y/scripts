@@ -1,0 +1,16 @@
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: always
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    volumes:
+      - ./work:/opt/adguardhome/work
+      - ./conf:/opt/adguardhome/conf
+    environment:
+      TZ: "Asia/Shanghai"
