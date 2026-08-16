@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Joel's Life</title>
+  <link rel="icon" type="image/png" href="/avatar.png">
+  <link rel="apple-touch-icon" href="/avatar.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Joel's Life">
+  <meta name="theme-color" content="#060913">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            apple: {
+              bg: '#060913',
+              card: 'rgba(15, 22, 38, 0.60)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              hover: 'rgba(59, 130, 246, 0.18)',
+              blue: '#2997FF',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 全局基底 */
+    body {
+      min-height: 100vh;
+      color: #F3F4F6;
+      transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow-x: hidden;
+      background-color: #060913;
+    }
+
+    /* 1. 主题 1: 深空流光星云 (Cosmic Nebula · 默认极度协调) */
+    body.theme-nebula {
+      background-color: #060913;
+      background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.28) 0%, rgba(6, 9, 19, 0.95) 75%);
+    }
+    .nebula-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      filter: blur(110px);
+      opacity: 0.75;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    .nebula-blob {
+      position: absolute;
+      border-radius: 50%;
+      animation: nebulaFloat 24s infinite alternate ease-in-out;
+    }
+    .blob-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.85) 0%, rgba(29, 78, 216, 0.40) 50%, transparent 70%);
+      top: -140px;
+      left: -100px;
+      animation-duration: 26s;
+    }
+    .blob-2 {
+      width: 680px;
+      height: 680px;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.75) 0%, rgba(99, 102, 241, 0.40) 50%, transparent 70%);
+      top: 25%;
+      right: -160px;
+      animation-duration: 30s;
+      animation-delay: -6s;
+    }
+    .blob-3 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.60) 0%, rgba(5, 150, 105, 0.35) 50%, transparent 70%);
+      bottom: -100px;
+      left: 20%;
+      animation-duration: 22s;
+      animation-delay: -12s;
+    }
+    .blob-4 {
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(225, 29, 72, 0.45) 0%, rgba(217, 70, 239, 0.30) 45%, transparent 70%);
+      top: 15%;
+      left: 40%;
+      animation-duration: 32s;
+      animation-delay: -18s;
+    }
+
+    @keyframes nebulaFloat {
+      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      50% { transform: translate(70px, 50px) scale(1.12) rotate(4deg); }
+      100% { transform: translate(-50px, 90px) scale(0.92) rotate(-3deg); }
+    }
+
+    /* 2. 主题 2: 暗夜雪峰 (Dark Mountain · 沉稳冷峻) */
+    body.theme-mountain {
+      background: 
+        linear-gradient(180deg, rgba(6, 9, 19, 0.65) 0%, rgba(6, 9, 19, 0.50) 45%, rgba(6, 9, 19, 0.85) 100%),
+        url('/scenic_dark.webp') no-repeat center center fixed;
+      background-size: cover;
+      background-color: #060913;
+    }
+
+    /* 3. 主题 3: 科技微网格 (Cyber Grid · 极客硬核) */
+    body.theme-cyber {
+      background-color: #080B12;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(37, 99, 235, 0.20) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    /* 4. 主题 4: OLED 纯粹曜黑 (OLED Pure Black · 极致深邃) */
+    body.theme-oled {
+      background: #000000;
+      background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    }
+
+    /* 苹果质感毛玻璃卡片 (Glassmorphism 2.0) */
+    .glass-card {
+      background: rgba(14, 20, 34, 0.58);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-4px) scale(1.015);
+      border-color: rgba(96, 165, 250, 0.55);
+      background: rgba(24, 34, 56, 0.78);
+      box-shadow: 0 18px 40px -8px rgba(37, 99, 235, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    /* 搜索栏发光 */
+    .search-glow:focus-within {
+      box-shadow: 0 0 35px rgba(59, 130, 246, 0.45);
+      border-color: rgba(96, 165, 250, 0.75);
+    }
+
+    /* 文字立体阴影 */
+    .text-glow {
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 0, 0, 0.45);
+    }
+    .time-glow {
+      text-shadow: 0 0 25px rgba(59, 130, 246, 0.35), 0 2px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    /* 品牌图标通用样式 */
+    .brand-icon-wrapper {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      padding: 0.45rem;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .group:hover .brand-icon-wrapper {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .brand-icon-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* 提示 Toast */
+    #toast {
+      transition: all 0.3s ease;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* 滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.35); }
+  </style>
+</head>
+<body class="theme-nebula flex flex-col items-center justify-between p-4 sm:p-6 md:p-10 selection:bg-blue-500 selection:text-white">
+
+  <!-- 动态深空流光星云容器 -->
+  <div id="nebula-container" class="nebula-container">
+    <div class="nebula-blob blob-1"></div>
+    <div class="nebula-blob blob-2"></div>
+    <div class="nebula-blob blob-3"></div>
+    <div class="nebula-blob blob-4"></div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 relative z-50">
+    <!-- 左侧品牌与问候 -->
+    <div class="flex items-center gap-3.5">
+      <div class="relative">
+        <img src="/avatar.png" alt="Joel's Life" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-2 ring-blue-500/30 object-cover shadow-xl">
+        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-slate-900"></div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white/95 text-glow">Joel's Life</h1>
+          <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">Hub</span>
+        </div>
+        <p class="text-xs text-slate-300 tracking-wide mt-0.5 text-glow" id="greeting">午后好，保持专注与敏锐</p>
+      </div>
+    </div>
+
+    <!-- 右侧：定位天气 + 双时区拟态时钟 + 主题切换 -->
+    <div class="flex items-center flex-wrap gap-2.5 sm:gap-3.5">
+      
+      <!-- 拟态实时天气卡片 -->
+      <div id="weather-card" class="flex items-center gap-2.5 bg-slate-950/60 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-white/10 shadow-xl transition-all">
+        <div id="weather-icon-wrapper" class="w-6 h-6 flex items-center justify-center text-sky-400">
+          <i data-lucide="cloud-sun" class="w-5 h-5"></i>
+        </div>
+        <div class="flex flex-col text-left">
+          <div class="flex items-center gap-1.5 leading-none">
+            <span id="weather-city" class="text-[11px] font-semibold text-white/95">定位中</span>
+            <span id="weather-condition" class="text-[10px] text-slate-400 font-medium">--</span>
+          </div>
+          <div id="weather-temp" class="text-xs font-bold font-mono text-sky-300 mt-1 leading-none">--°C</div>
+        </div>
+      </div>
+
+      <!-- 双时区拟态时钟卡片 -->
+      <div class="flex items-center gap-3 bg-slate-950/60 backdrop-blur-2xl px-3.5 py-1.5 rounded-2xl border border-white/10 shadow-xl">
+        <!-- 北京时间 -->
+        <div class="text-center pr-3 border-r border-white/10">
+          <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+            <span>🇨🇳</span> 北京时间
+          </div>
+          <div class="text-sm font-bold text-white font-mono tracking-wide mt-0.5 time-glow" id="bj-time">00:00:00</div>
+        </div>
+        <!-- 洛杉矶时间 -->
+        <div class="text-center">
+          <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+            <span>🇺🇸</span> 洛杉矶 (LA)
+          </div>
+          <div class="text-sm font-bold text-amber-400 font-mono tracking-wide mt-0.5" id="la-time">00:00:00</div>
+        </div>
+      </div>
+
+      <!-- 背景视觉主题切换器 -->
+      <div class="relative z-50">
+        <button type="button" id="theme-btn" title="切换背景视觉" class="p-2.5 rounded-2xl bg-slate-950/60 hover:bg-slate-800/80 backdrop-blur-2xl border border-white/10 text-slate-300 hover:text-white shadow-xl transition-all">
+          <i data-lucide="palette" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+
+        <!-- 主题选择浮窗 -->
+        <div id="theme-menu" class="hidden absolute right-0 top-full mt-2 w-56 glass-card rounded-2xl p-2 shadow-2xl z-[9999] border border-white/20">
+          <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">背景视觉预设</div>
+          <button type="button" onclick="window.setTheme('nebula')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors font-medium">
+            <span class="w-3 h-3 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-teal-400"></span> 🌌 深空流光星云 (推荐)
+          </button>
+          <button type="button" onclick="window.setTheme('mountain')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+            <span class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500"></span> 🏔️ 苹果暗夜雪峰 (冷峻)
+          </button>
+          <button type="button" onclick="window.setTheme('cyber')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+            <span class="w-3 h-3 rounded-full bg-cyan-500/80"></span> 🪐 科技微光网格 (硬核)
+          </button>
+          <button type="button" onclick="window.setTheme('oled')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+            <span class="w-3 h-3 rounded-full bg-black border border-white/30"></span> 🌑 OLED 纯粹曜黑 (纯黑)
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 中央主交互区 -->
+  <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center my-4 sm:my-8 space-y-8 z-10">
+    
+    <!-- 炫酷多引擎搜索栏 -->
+    <div class="w-full max-w-2xl relative z-30">
+      <form id="search-form" target="_blank" class="relative group">
+        <div class="search-glow relative flex items-center h-12 sm:h-14 bg-slate-950/70 backdrop-blur-2xl border border-white/15 rounded-2xl sm:rounded-3xl px-2 sm:px-2.5 transition-all duration-300 shadow-2xl">
+          
+          <!-- 引擎切换胶囊 -->
+          <div class="relative flex-shrink-0">
+            <button type="button" id="engine-btn" class="h-8 sm:h-9.5 flex items-center gap-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs sm:text-sm font-medium transition-colors">
+              <span id="engine-icon" class="text-blue-400 font-bold leading-none">G</span>
+              <span id="engine-name" class="hidden sm:inline leading-none">Google</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
+            </button>
+
+            <!-- 引擎浮窗菜单 -->
+            <div id="engine-menu" class="hidden absolute left-0 top-full mt-2 w-44 glass-card rounded-2xl p-1.5 shadow-2xl z-[9999] border border-white/20">
+              <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">选择搜索引擎</div>
+              <button type="button" onclick="window.setEngine('google')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <span class="w-4 text-center font-bold text-blue-400">G</span> Google
+              </button>
+              <button type="button" onclick="window.setEngine('bing')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <span class="w-4 text-center font-bold text-teal-400">B</span> Bing
+              </button>
+              <button type="button" onclick="window.setEngine('baidu')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <span class="w-4 text-center font-bold text-red-400">度</span> 百度
+              </button>
+              <button type="button" onclick="window.setEngine('github')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <i data-lucide="github" class="w-4 h-4 text-purple-400"></i> GitHub
+              </button>
+              <button type="button" onclick="window.setEngine('bilibili')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <span class="w-4 text-center font-bold text-pink-400">B</span> 哔哩哔哩
+              </button>
+              <button type="button" onclick="window.setEngine('youtube')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors">
+                <i data-lucide="youtube" class="w-4 h-4 text-red-500"></i> YouTube
+              </button>
+            </div>
+          </div>
+
+          <!-- 搜索输入框 -->
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="搜索或输入网址... (按 / 聚焦，按 Esc 清空)" 
+            autocomplete="off"
+            class="flex-1 h-full bg-transparent border-0 px-3 sm:px-4 py-0 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-0 font-normal leading-normal"
+            style="caret-color: #3b82f6;"
+          >
+
+          <!-- 搜索提交按钮 -->
+          <button type="submit" class="h-8 w-8 sm:h-9.5 sm:w-9.5 rounded-xl sm:rounded-2xl bg-blue-600/80 hover:bg-blue-600 text-white shadow-lg transition-all flex items-center justify-center flex-shrink-0">
+            <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 7 大精准分类标签过滤器 -->
+    <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-1 z-20 scrollbar-none">
+      <button type="button" onclick="window.filterCards('all')" data-tab="all" class="category-tab active px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/20">全部</button>
+      <button type="button" onclick="window.filterCards('ai')" data-tab="ai" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">AI 智汇</button>
+      <button type="button" onclick="window.filterCards('homelab')" data-tab="homelab" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">内网中枢</button>
+      <button type="button" onclick="window.filterCards('cloud')" data-tab="cloud" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">核心云端</button>
+      <button type="button" onclick="window.filterCards('mail')" data-tab="mail" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">通信邮箱</button>
+      <button type="button" onclick="window.filterCards('media')" data-tab="media" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">影音 PT</button>
+      <button type="button" onclick="window.filterCards('monitor')" data-tab="monitor" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">监控探针</button>
+      <button type="button" onclick="window.filterCards('tools')" data-tab="tools" class="category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md">实用工具</button>
+    </div>
+
+    <!-- 专属服务卡片网格大屏 (37 个精选卡片) -->
+    <div id="services-grid" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 z-10">
+
+      <!-- ==================== 1. AI 智汇 (ai) ==================== -->
+      
+      <!-- ChatGPT (OpenAI) -->
+      <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" data-category="ai" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/chatgpt.svg" alt="ChatGPT" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">ChatGPT</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">OpenAI 对话旗舰与 GPT-4o</p>
+        </div>
+      </a>
+
+      <!-- Google Gemini -->
+      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" data-category="ai" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/gemini.svg" alt="Gemini" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Google Gemini</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Google 旗舰多模态大模型</p>
+        </div>
+      </a>
+
+      <!-- Claude (Anthropic) -->
+      <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer" data-category="ai" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/claude.svg" alt="Claude" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Claude</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Anthropic 深度推理与代码专家</p>
+        </div>
+      </a>
+
+      <!-- Grok (xAI) -->
+      <a href="https://grok.com/" target="_blank" rel="noopener noreferrer" data-category="ai" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/grok.svg" alt="Grok" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Grok</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">xAI 实时搜索与极客大模型</p>
+        </div>
+      </a>
+
+      <!-- DeepSeek Harness (一键直达) -->
+      <a href="http://10.0.0.5:3000" target="_blank" rel="noopener noreferrer" data-category="ai" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/deepseek.png" alt="DeepSeek" class="brand-icon-img" />
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">DeepSeek Harness</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">一键秒开 · AI 编程智能体</p>
+        </div>
+      </a>
+
+      <!-- ==================== 2. 内网中枢 (homelab) ==================== -->
+
+      <!-- 华硕主路由 (BE88U) -->
+      <a href="http://10.0.0.1" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/asus.png" alt="ASUS" class="brand-icon-img" onerror="this.src='https://api.iconify.design/simple-icons:asus.svg?color=%2300539b'" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">ASUS 路由器</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">BE88U 家庭主路由后台</p>
+        </div>
+      </a>
+
+      <!-- Surge Web (Mac网关) -->
+      <a href="http://10.0.0.2:6171" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/surge.png" alt="Surge" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Surge Web</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Mac 网关与分流控制</p>
+        </div>
+      </a>
+
+      <!-- PVE 物理宿主机 -->
+      <a href="https://10.0.0.4:8006" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/proxmox.png" alt="Proxmox VE" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">PVE 物理宿主机</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">底层虚拟化集群中枢</p>
+        </div>
+      </a>
+
+      <!-- AdGuard Home DNS -->
+      <a href="http://10.0.0.6:3000" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/adguard-home.png" alt="AdGuard Home" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">AdGuard Home</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">全网广告拦截与安全DNS</p>
+        </div>
+      </a>
+
+      <!-- Homelable (网络拓扑) -->
+      <a href="http://10.0.0.3:3003" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://api.iconify.design/solar:diagram-up-bold.svg?color=%2306b6d4" alt="Homelable" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Homelable</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">家庭网络拓扑可视化</p>
+        </div>
+      </a>
+
+      <!-- Syncthing 同步 -->
+      <a href="http://10.0.0.3:8384" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/syncthing.png" alt="Syncthing" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Syncthing</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Obsidian 跨端双向同步</p>
+        </div>
+      </a>
+
+      <!-- Vaultwarden 私有密码库 -->
+      <a href="https://oracle.jhsweetheart.com" target="_blank" rel="noopener noreferrer" data-category="homelab" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/bitwarden.png" alt="Vaultwarden" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Vaultwarden</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">私有全端同步密码保险库</p>
+        </div>
+      </a>
+
+      <!-- ==================== 3. 核心云端 (cloud) ==================== -->
+
+      <!-- Google Cloud (GCP) -->
+      <a href="https://cloud.google.com/free?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=Cloud-SS-DR-GCP-1713658-GCP-DR-NA-US-en-Google-BKWS-EXA-GeneralGCP&amp;utm_content=t-Hybrid+%7C+BKWS+-+EXA+%7C+Txt-Generic+Cloud-Cloud+Generic-Cloud+Generic-6458750523&amp;utm_term=google%20cloud&amp;gclsrc=aw.ds&amp;gad_source=1&amp;gad_campaignid=23752515549&amp;gclid=Cj0KCQjwv4XUBhDBARIsAE6bQUTf_guEYC8qlNoBiqrHvBgsei7GPMDXiMBVQjVxLKlwLarLObjaSWIaAsfpEALw_wcB" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/google-cloud.svg" alt="Google Cloud" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Google Cloud</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">GCP 控制台与 Vertex AI 资源</p>
+        </div>
+      </a>
+
+      <!-- Oracle Cloud (甲骨文云) -->
+      <a href="https://cloud.oracle.com/?region=us-phoenix-1" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/oracle-cloud.png" alt="Oracle Cloud" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Oracle Cloud</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">美西凤凰城 OCI 官方控制台</p>
+        </div>
+      </a>
+
+      <!-- 搬瓦工后台 (Services) -->
+      <a href="https://bandwagonhost.com/services" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/bandwagonhost.png" alt="BandwagonHost" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">搬瓦工后台</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">VPS 实例与服务控制中心</p>
+        </div>
+      </a>
+
+      <!-- VirCS 控制台 -->
+      <a href="https://www.vircs.com/" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/vircs.svg" alt="VirCS" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">VirCS 控制台</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">纯正美国家宽</p>
+        </div>
+      </a>
+
+      <!-- 甲骨文 s-ui 面板 -->
+      <a href="https://oracle.jhsweetheart.com:18848/jhsweet/" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/oracle.png" alt="Oracle Cloud" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">甲骨文 s-ui</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Oracle 核心节点网关管理</p>
+        </div>
+      </a>
+
+      <!-- 搬瓦工 s-ui 面板 -->
+      <a href="https://joel.jhsweetheart.com:18848/jhsweet/" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/linux.png" alt="BandwagonHost" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">搬瓦工 s-ui</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Bandwagon 核心主力节点</p>
+        </div>
+      </a>
+
+      <!-- IPRoyal 住宅代理 -->
+      <a href="https://dashboard.iproyal.com/me/products/residential-proxies/" target="_blank" rel="noopener noreferrer" data-category="cloud" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/iproyal.svg" alt="IPRoyal" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">IPRoyal 代理</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">全球纯净住宅代理与流量控制台</p>
+        </div>
+      </a>
+
+      <!-- ==================== 4. 通信邮箱 (mail) ==================== -->
+
+      <!-- Gmail -->
+      <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/gmail.svg" alt="Gmail" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Gmail</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">Google 官方安全邮件服务</p>
+        </div>
+      </a>
+
+      <!-- Outlook -->
+      <a href="https://outlook.live.com/" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/outlook.svg" alt="Outlook" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Outlook</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">微软个人与企业邮箱门户</p>
+        </div>
+      </a>
+
+      <!-- QQ 邮箱 -->
+      <a href="https://mail.qq.com/" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/qqmail.svg" alt="QQ邮箱" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">QQ 邮箱</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">腾讯官方核心邮件服务</p>
+        </div>
+      </a>
+
+      <!-- Tello 手机卡 -->
+      <a href="https://tello.com/account/login?return_to=%2Faccount%2Fhome" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/tello.svg" alt="Tello" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Tello Mobile</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">美国手机卡账户与套餐管理</p>
+        </div>
+      </a>
+
+      <!-- T-Mobile (预付费账户) -->
+      <a href="https://prepaid.t-mobile.com/" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/tmobile.svg" alt="T-Mobile" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">T-Mobile</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">美国预付费卡账户与套餐管理</p>
+        </div>
+      </a>
+
+      <!-- Anytime Mailbox (私人信箱) -->
+      <a href="https://signup.anytimemailbox.com/login" target="_blank" rel="noopener noreferrer" data-category="mail" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/anytimemailbox.png" alt="Anytime Mailbox" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Anytime Mailbox</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">美国私人真实地址与信箱管理</p>
+        </div>
+      </a>
+
+      <!-- ==================== 5. 影音 PT (media) ==================== -->
+
+      <!-- MoviePilot (全自动影音整理) -->
+      <a href="http://10.0.0.3:3000" target="_blank" rel="noopener noreferrer" data-category="media" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/movie-pilot.png" alt="MoviePilot" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">MoviePilot</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">全自动影音整理中枢</p>
+        </div>
+      </a>
+
+      <!-- Emby 媒体库 -->
+      <a href="http://10.0.0.3:8096" target="_blank" rel="noopener noreferrer" data-category="media" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/emby.png" alt="Emby" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Emby 媒体库</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">个人家庭流媒体影院</p>
+        </div>
+      </a>
+
+      <!-- qBittorrent 下载 -->
+      <a href="http://10.0.0.3:8989" target="_blank" rel="noopener noreferrer" data-category="media" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/qbittorrent.png" alt="qBittorrent" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">qBittorrent</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">PT/BT 极速下载中枢</p>
+        </div>
+      </a>
+
+      <!-- M-Team 馒头 (PT站点) -->
+      <a href="https://ob.m-team.cc/index" target="_blank" rel="noopener noreferrer" data-category="media" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/mteam.svg" alt="M-Team" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">M-Team 馒头</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">顶级高清 PT 资源共享站点</p>
+        </div>
+      </a>
+
+      <!-- xHamster (在线影视) -->
+      <a href="https://zh.xhamster.com/" target="_blank" rel="noopener noreferrer" data-category="media" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/xhamster.png" alt="xHamster" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">xHamster</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">在线影视与流媒体娱乐</p>
+        </div>
+      </a>
+
+      <!-- ==================== 6. 监控探针 (monitor) ==================== -->
+
+      <!-- Uptime Kuma (服务监控) -->
+      <a href="http://10.0.0.3:3005" target="_blank" rel="noopener noreferrer" data-category="monitor" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/uptime-kuma.png" alt="Uptime Kuma" class="brand-icon-img" />
+          </div>
+          <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Uptime Kuma</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">全系统服务可用性监控</p>
+        </div>
+      </a>
+
+      <!-- Beszel Hub (探针大屏) -->
+      <a href="http://10.0.0.3:8095" target="_blank" rel="noopener noreferrer" data-category="monitor" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/beszel.png" alt="Beszel Hub" class="brand-icon-img" />
+          </div>
+          <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Beszel Hub</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">轻量级全主机探针大屏</p>
+        </div>
+      </a>
+
+      <!-- ==================== 7. 实用工具 (tools) ==================== -->
+
+      <!-- Sub-Store (订阅转换) -->
+      <a href="http://10.0.0.3:3002/?api=/T3B9dgzBzdRbBF8Aqx7P" target="_blank" rel="noopener noreferrer" data-category="tools" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/sub-store.png" alt="Sub-Store" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">Sub-Store</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">高级订阅转换与同步</p>
+        </div>
+      </a>
+
+      <!-- ping0.cc (IP画像) -->
+      <a href="https://ping0.cc" target="_blank" rel="noopener noreferrer" data-category="tools" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://api.iconify.design/solar:radar-2-bold.svg?color=%233b82f6" alt="ping0.cc" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">ping0.cc</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">IP 欺诈度/类型/风险标记</p>
+        </div>
+      </a>
+
+      <!-- ip.net.coffee (IP纯净度) -->
+      <a href="https://ip.net.coffee" target="_blank" rel="noopener noreferrer" data-category="tools" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="https://api.iconify.design/solar:cup-hot-bold.svg?color=%23f59e0b" alt="ip.coffee" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">ip.net.coffee</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">多源欺诈分与类型综合检测</p>
+        </div>
+      </a>
+
+      <!-- WLOC 定位 (经纬度与WiFi定位) -->
+      <a href="https://wloc-pages.pages.dev/" target="_blank" rel="noopener noreferrer" data-category="tools" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/wloc.svg" alt="WLOC" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">WLOC 定位</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">WiFi BSSID / IP 经纬度精确定位</p>
+        </div>
+      </a>
+
+      <!-- 奶昔 Nexitally -->
+      <a href="https://nexitallysafe.com/" target="_blank" rel="noopener noreferrer" data-category="tools" class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group">
+        <div class="flex items-start justify-between">
+          <div class="brand-icon-wrapper">
+            <img src="/icons/nexitally.png" alt="Nexitally" class="brand-icon-img" />
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">奶昔 Nexitally</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 truncate">顶级大带宽旗舰机场门户</p>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <!-- 底部署名与状态 -->
+  <footer class="w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 pt-6 pb-2 border-t border-white/5 z-10 gap-2">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-slate-300 font-medium">全系统核心服务正常运行中</span>
+    </div>
+    <div class="flex items-center gap-4 text-[11px] text-slate-400">
+      <span>start.jhsweetheart.com · Designed by JoelYang</span>
+    </div>
+  </footer>
+
+  <!-- 快捷提示 Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-xl border border-white/15 px-4 py-2 rounded-2xl text-xs text-white shadow-2xl flex items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toast-text">操作已生效</span>
+  </div>
+
+  <script>
+    // 渲染 Lucide 图标
+    lucide.createIcons();
+
+    // 1. 背景主题切换与持久化
+    const themeBtn = document.getElementById('theme-btn');
+    const themeMenu = document.getElementById('theme-menu');
+    const nebulaContainer = document.getElementById('nebula-container');
+
+    themeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => {
+      themeMenu.classList.add('hidden');
+    });
+
+    window.setTheme = function(themeKey) {
+      document.body.className = `theme-${themeKey} flex flex-col items-center justify-between p-4 sm:p-6 md:p-10 selection:bg-blue-500 selection:text-white`;
+      if (themeKey === 'nebula') {
+        nebulaContainer.style.display = 'block';
+      } else {
+        nebulaContainer.style.display = 'none';
+      }
+      localStorage.setItem('user_theme', themeKey);
+      themeMenu.classList.add('hidden');
+    };
+
+    const savedTheme = localStorage.getItem('user_theme') || 'nebula';
+    window.setTheme(savedTheme);
+
+    // 2. 搜索引擎配置
+    const engines = {
+      google: { name: 'Google', icon: 'G', iconColor: 'text-blue-400', url: 'https://www.google.com/search?q=' },
+      bing: { name: 'Bing', icon: 'B', iconColor: 'text-teal-400', url: 'https://www.bing.com/search?q=' },
+      baidu: { name: '百度', icon: '度', iconColor: 'text-red-400', url: 'https://www.baidu.com/s?wd=' },
+      github: { name: 'GitHub', icon: 'Git', iconColor: 'text-purple-400', url: 'https://github.com/search?q=' },
+      bilibili: { name: 'B站', icon: 'B', iconColor: 'text-pink-400', url: 'https://search.bilibili.com/all?keyword=' },
+      youtube: { name: 'YouTube', icon: 'YT', iconColor: 'text-red-500', url: 'https://www.youtube.com/results?search_query=' }
+    };
+
+    let currentEngine = 'google';
+
+    window.setEngine = function(engineKey) {
+      if (!engines[engineKey]) return;
+      currentEngine = engineKey;
+      const eng = engines[engineKey];
+      document.getElementById('engine-name').innerText = eng.name;
+      document.getElementById('engine-icon').innerText = eng.icon;
+      document.getElementById('engine-menu').classList.add('hidden');
+      document.getElementById('search-input').focus();
+    };
+
+    const engineBtn = document.getElementById('engine-btn');
+    const engineMenu = document.getElementById('engine-menu');
+
+    engineBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      engineMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      engineMenu.classList.add('hidden');
+    });
+
+    // 搜索表单提交
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      // 如果是标准 URL 直接跳转
+      if (/^(http|https):\/\/[^ "\n\r]+$/.test(query)) {
+        window.open(query, '_blank');
+        return;
+      }
+      if (/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?(:[0-9]{1,5})?(\/.*)?$/.test(query)) {
+        window.open('https://' + query, '_blank');
+        return;
+      }
+
+      window.open(engines[currentEngine].url + encodeURIComponent(query), '_blank');
+    });
+
+    // 快捷键: / 键聚焦搜索框，Esc 清空
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      } else if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+      }
+    });
+
+    // 3. 分类 Tab 过滤
+    window.filterCards = function(category) {
+      const tabs = document.querySelectorAll('.category-tab');
+      tabs.forEach(tab => {
+        if (tab.dataset.tab === category) {
+          tab.className = 'category-tab active px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/20';
+        } else {
+          tab.className = 'category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md';
+        }
+      });
+
+      const cards = document.querySelectorAll('.nav-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    };
+
+    // 4. 双时区实时秒级同步与动态问候
+    function updateClocks() {
+      const now = new Date();
+
+      // 北京时间 (UTC+8)
+      const bjFormatter = new Intl.DateTimeFormat('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      document.getElementById('bj-time').innerText = bjFormatter.format(now);
+
+      // 洛杉矶时间 (America/Los_Angeles)
+      const laFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      document.getElementById('la-time').innerText = laFormatter.format(now);
+
+      // 动态问候语
+      const hour = parseInt(new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', hour: 'numeric', hour12: false }).format(now));
+      let greetText = '夜深了，注意休息';
+      if (hour >= 5 && hour < 11) greetText = '清晨好，迎接崭新的一天';
+      else if (hour >= 11 && hour < 14) greetText = '午后好，保持专注与敏锐';
+      else if (hour >= 14 && hour < 18) greetText = '下午好，咖啡时刻与创造力';
+      else if (hour >= 18 && hour < 23) greetText = '傍晚好，享受属于自己的时光';
+
+      const dateStr = now.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'long' });
+      document.getElementById('greeting').innerText = greetText + ' · ' + dateStr;
+    }
+
+    updateClocks();
+    setInterval(updateClocks, 1000);
+
+    // 5. 智能地理定位与实时天气系统
+    const weatherIconsMap = {
+      0: { icon: 'sun', text: '晴朗' },
+      1: { icon: 'cloud-sun', text: '少云' },
+      2: { icon: 'cloud-sun', text: '多云' },
+      3: { icon: 'cloudy', text: '阴天' },
+      45: { icon: 'cloud-fog', text: '大雾' },
+      48: { icon: 'cloud-fog', text: '冻雾' },
+      51: { icon: 'cloud-drizzle', text: '毛毛细雨' },
+      53: { icon: 'cloud-drizzle', text: '小阵雨' },
+      55: { icon: 'cloud-drizzle', text: '密集细雨' },
+      61: { icon: 'cloud-rain', text: '小雨' },
+      63: { icon: 'cloud-rain', text: '中雨' },
+      65: { icon: 'cloud-rain', text: '大雨' },
+      71: { icon: 'cloud-snow', text: '小雪' },
+      73: { icon: 'cloud-snow', text: '中雪' },
+      75: { icon: 'cloud-snow', text: '暴雪' },
+      80: { icon: 'cloud-rain', text: '阵雨' },
+      81: { icon: 'cloud-rain', text: '强阵雨' },
+      82: { icon: 'cloud-rain', text: '暴雨' },
+      95: { icon: 'cloud-lightning', text: '雷阵雨' },
+      96: { icon: 'cloud-lightning', text: '雷雨夹冰雹' },
+      99: { icon: 'cloud-lightning', text: '强雷雨' }
+    };
+
+    function renderWeather(city, temp, code) {
+      const cityEl = document.getElementById('weather-city');
+      const condEl = document.getElementById('weather-condition');
+      const tempEl = document.getElementById('weather-temp');
+      const iconWrapper = document.getElementById('weather-icon-wrapper');
+
+      const info = weatherIconsMap[code] || { icon: 'cloud-sun', text: '多云' };
+      cityEl.innerText = city || '当前位置';
+      condEl.innerText = info.text;
+      tempEl.innerText = `${Math.round(temp)}°C`;
+      iconWrapper.innerHTML = `<i data-lucide="${info.icon}" class="w-5 h-5"></i>`;
+      lucide.createIcons();
+    }
+
+    async function fetchWeather() {
+      try {
+        const cached = localStorage.getItem('cached_weather_data');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Date.now() - parsed.timestamp < 15 * 60 * 1000) {
+            renderWeather(parsed.city, parsed.temp, parsed.code);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      let lat = 32.06;
+      let lon = 118.79;
+      let cityName = '南京';
+
+      try {
+        const ipRes = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+        if (ipRes.ok) {
+          const ipData = await ipRes.json();
+          if (ipData.latitude && ipData.longitude) {
+            lat = ipData.latitude;
+            lon = ipData.longitude;
+            cityName = ipData.city || cityName;
+          }
+        }
+      } catch (e) {
+        try {
+          const geoRes = await fetch('https://api.ip.sb/geoip', { signal: AbortSignal.timeout(3000) });
+          if (geoRes.ok) {
+            const geoData = await geoRes.json();
+            if (geoData.latitude && geoData.longitude) {
+              lat = geoData.latitude;
+              lon = geoData.longitude;
+              cityName = geoData.city || cityName;
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          try {
+            lat = pos.coords.latitude;
+            lon = pos.coords.longitude;
+            await queryOpenMeteo(lat, lon, cityName);
+          } catch (e) {}
+        }, () => {
+          queryOpenMeteo(lat, lon, cityName);
+        }, { timeout: 3000 });
+      } else {
+        queryOpenMeteo(lat, lon, cityName);
+      }
+    }
+
+    async function queryOpenMeteo(lat, lon, cityName) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const data = await res.json();
+          const cur = data.current_weather;
+          if (cur) {
+            renderWeather(cityName, cur.temperature, cur.weathercode);
+            localStorage.setItem('cached_weather_data', JSON.stringify({
+              city: cityName,
+              temp: cur.temperature,
+              code: cur.weathercode,
+              timestamp: Date.now()
+            }));
+          }
+        }
+      } catch (e) {
+        console.warn('Weather fetch error:', e);
+      }
+    }
+
+    fetchWeather();
+  </script>
+</body>
+</html>
