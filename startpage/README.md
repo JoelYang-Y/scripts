@@ -20,7 +20,7 @@
    - iPad / iPhone 在 Safari 中点击「添加到主屏幕」即可生成名为 **"Joel's Life"** 的无边框独立全屏桌面应用。
 
 4. **全自托管图标与 0ms 秒开**
-   - 37 个服务图标 100% 本地自托管在 `/icons/` 目录下（SVG 矢量与 Retina PNG 结合）。
+   - 38 个服务图标 100% 本地自托管在 `/icons/` 目录下（SVG 矢量与 Retina PNG 结合）。
    - 杜绝第三方 CDN 依赖、外链防盗链及网络阻断。
 
 5. **全平台浏览器安全隔离**
@@ -28,9 +28,9 @@
 
 ---
 
-## 7 大精准业务分类与 37 个服务卡片
+## 7 大精准业务分类与 38 个服务卡片
 
-| 核心分类 | 包含服务卡片（共 37 个） | 说明 |
+| 核心分类 | 包含服务卡片（共 38 个） | 说明 |
 | :--- | :--- | :--- |
 | **`AI 智汇` (ai)** | **ChatGPT** / **Google Gemini** / **Claude** / **Grok** / **DeepSeek Harness** | 5 大全球顶尖大模型与本地 AI 编程智能体 |
 | **`内网中枢` (homelab)** | **ASUS 路由器** / **Surge Web** / **PVE 物理宿主机** / **AdGuard Home** / **Homelable 拓扑** / **Syncthing 同步** / **Vaultwarden 密码库** | 家庭网络、虚拟化底座与本地基础设施 |
@@ -38,7 +38,7 @@
 | **`通信邮箱` (mail)** | **Gmail** / **Outlook** / **QQ 邮箱** / **Tello Mobile** / **T-Mobile** / **Anytime Mailbox 私人信箱** | 个人与企业核心邮箱、美国手机卡与真实地址管理 |
 | **`影音 PT` (media)** | **MoviePilot 影音整理** / **Emby 媒体库** / **qBittorrent 下载** / **M-Team 馒头 (PT站点)** / **xHamster** | 家庭影院、PT 资源与流媒体影视娱乐 |
 | **`监控探针` (monitor)** | **Uptime Kuma 可用性监控** / **Beszel Hub 全主机探针大屏** | 全局网络链路与服务器状态实时监控 |
-| **`实用工具` (tools)** | **Sub-Store 订阅转换** / **ping0.cc 风险检测** / **ip.net.coffee 纯净度检测** / **WLOC 无线定位** / **奶昔 Nexitally（顶级旗舰机场）** | 订阅转换、多源 IP 画像、定位与网络检测工具 |
+| **`实用工具` (tools)** | **GitHub 脚本库** / **Sub-Store 订阅转换** / **ping0.cc 风险检测** / **ip.net.coffee 纯净度检测** / **WLOC 无线定位** / **奶昔 Nexitally（顶级旗舰机场）** | 运维脚本仓库、订阅转换、多源 IP 画像、定位与网络检测工具 |
 
 ---
 
