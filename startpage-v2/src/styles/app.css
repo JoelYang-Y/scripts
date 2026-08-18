@@ -1,14 +1,40 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     min-height: 100vh;
+    min-height: 100dvh; /* 适配 iOS 100% 动态视口高度 */
     color: #F3F4F6;
     transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow-x: hidden;
     background-color: #060913;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-top: max(1rem, var(--sat));
+    padding-bottom: max(1.5rem, var(--sab));
+    padding-left: max(1rem, var(--sal));
+    padding-right: max(1rem, var(--sar));
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  input, textarea, code, pre {
+    user-select: text;
+    -webkit-user-select: text;
   }
 }
 
@@ -23,14 +49,17 @@ body.theme-nebula {
   z-index: 0;
   overflow: hidden;
   filter: blur(110px);
+  -webkit-filter: blur(110px);
   opacity: 0.75;
   pointer-events: none;
   transition: opacity 0.8s ease;
+  transform: translateZ(0); /* 开启 GPU 硬件加速 */
 }
 .nebula-blob {
   position: absolute;
   border-radius: 50%;
   animation: nebulaFloat 24s infinite alternate ease-in-out;
+  will-change: transform;
 }
 .blob-1 {
   width: 600px;
@@ -69,9 +98,9 @@ body.theme-nebula {
 }
 
 @keyframes nebulaFloat {
-  0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-  50% { transform: translate(70px, 50px) scale(1.12) rotate(4deg); }
-  100% { transform: translate(-50px, 90px) scale(0.92) rotate(-3deg); }
+  0% { transform: translate3d(0px, 0px, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(70px, 50px, 0) scale(1.12) rotate(4deg); }
+  100% { transform: translate3d(-50px, 90px, 0) scale(0.92) rotate(-3deg); }
 }
 
 /* 2. 主题 2: 暗夜雪峰 (Dark Mountain) */
@@ -106,13 +135,22 @@ body.theme-oled {
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transform: translateZ(0);
 }
-.glass-card:hover {
-  transform: translateY(-4px) scale(1.015);
-  border-color: rgba(96, 165, 250, 0.55);
-  background: rgba(24, 34, 56, 0.78);
-  box-shadow: 0 18px 40px -8px rgba(37, 99, 235, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    transform: translateY(-4px) scale(1.015);
+    border-color: rgba(96, 165, 250, 0.55);
+    background: rgba(24, 34, 56, 0.78);
+    box-shadow: 0 18px 40px -8px rgba(37, 99, 235, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+}
+
+.glass-card:active {
+  transform: scale(0.985);
+  background: rgba(20, 28, 48, 0.85);
 }
 
 /* 搜索栏发光 */
@@ -121,7 +159,7 @@ body.theme-oled {
   border-color: rgba(96, 165, 250, 0.75);
 }
 
-/* 文字阴影 */
+/* 文字阴影与毛玻璃抗锯齿 */
 .text-glow {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 0, 0, 0.45);
 }
@@ -142,27 +180,31 @@ body.theme-oled {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   padding: 0.45rem;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background 0.3s ease;
+  -webkit-touch-callout: none;
 }
-.group:hover .brand-icon-wrapper {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .brand-icon-wrapper {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
 }
 .brand-icon-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  pointer-events: none;
 }
 
-/* 模态浮窗抽屉 */
+/* 模态浮窗抽屉与沉浸式毛玻璃 */
 .modal-backdrop {
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* 滚动条 */
+/* 移动端平滑滚动与滚动条 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 9999px; }
