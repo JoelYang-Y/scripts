@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /opt/adguardhome/work:/opt/adguardhome/work
+      - /opt/adguardhome/conf:/opt/adguardhome/conf
+      - /etc/letsencrypt:/opt/adguardhome/ssl:ro
+
+  paopaodns:
+    image: slipk/paopaodns:latest
+    container_name: paopaodns
+    restart: always
+    ports:
+      - "5335:53/udp"
+      - "5335:53/tcp"
+    environment:
+      - CNAUTO=yes
+      - IPV6=yes
+    volumes:
+      - /opt/paopaodns/data:/data
+
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PORT=45876
+      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

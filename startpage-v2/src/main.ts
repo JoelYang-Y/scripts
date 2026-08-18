@@ -300,9 +300,9 @@ export function renderCardsAndCategories() {
   });
 }
 
-// 6. Docker 代码库全量交互与渲染 (全部 17 个生产容器)
+// 6. Docker 全内网配置代码库交互 (覆盖 10.0.0.3 / 10.0.0.4 / 10.0.0.5 / 10.0.0.6)
 export function initDockerModal() {
-  let activeCategory = 'all';
+  let activeHost = 'all';
   let searchQuery = '';
   let currentSrv: DockerServiceConfig = DOCKER_SERVICES[0];
 
@@ -315,20 +315,20 @@ export function initDockerModal() {
   const searchInput = document.getElementById('docker-search-input') as HTMLInputElement | null;
   const countBadge = document.getElementById('docker-service-count');
 
-  const categories = [
-    { id: 'all', name: '全部服务' },
-    { id: 'network', name: '网关网络' },
-    { id: 'media', name: '影音影视' },
-    { id: 'monitor', name: '监控探针' },
-    { id: 'music', name: '音乐媒体' },
-    { id: 'data', name: '数据知识' },
-    { id: 'cloud', name: '云端生产' }
+  // 按宿主节点分类
+  const hostCategories = [
+    { id: 'all', name: '全网拓扑 (全部)' },
+    { id: 'nas', name: '10.0.0.3 NAS' },
+    { id: 'dns', name: '10.0.0.6 DNS' },
+    { id: 'harness', name: '10.0.0.5 Harness' },
+    { id: 'pve', name: '10.0.0.4 PVE' },
+    { id: 'cloud', name: '云端 VPS' }
   ];
 
-  // 渲染 Docker 分类 Tab
+  // 渲染 Docker 宿主节点分类 Tab
   const filterTabsContainer = document.getElementById('docker-filter-tabs');
   if (filterTabsContainer) {
-    filterTabsContainer.innerHTML = categories.map((c, idx) => `
+    filterTabsContainer.innerHTML = hostCategories.map((c, idx) => `
       <button 
         type="button" 
         data-docker-cat="${c.id}" 
@@ -340,7 +340,7 @@ export function initDockerModal() {
 
     document.querySelectorAll('.docker-cat-tab').forEach(btn => {
       btn.addEventListener('click', () => {
-        activeCategory = btn.getAttribute('data-docker-cat') || 'all';
+        activeHost = btn.getAttribute('data-docker-cat') || 'all';
         document.querySelectorAll('.docker-cat-tab').forEach(b => {
           if (b === btn) {
             b.className = 'docker-cat-tab px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer bg-blue-600 text-white shadow-md';
@@ -355,12 +355,13 @@ export function initDockerModal() {
 
   function getFilteredServices() {
     return DOCKER_SERVICES.filter(srv => {
-      const matchCat = activeCategory === 'all' || srv.category === activeCategory;
+      const matchHost = activeHost === 'all' || srv.category === activeHost;
       const matchSearch = !searchQuery || 
         srv.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         srv.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        srv.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
         srv.port.includes(searchQuery);
-      return matchCat && matchSearch;
+      return matchHost && matchSearch;
     });
   }
 
@@ -374,17 +375,18 @@ export function initDockerModal() {
       return;
     }
 
-    navList.innerHTML = list.map((srv, idx) => `
+    navList.innerHTML = list.map((srv) => `
       <button 
         type="button" 
         data-service-id="${srv.id}" 
         class="docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer ${srv.id === currentSrv.id ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 active-srv' : 'hover:bg-white/5 text-slate-300'}"
       >
         <div class="flex flex-col truncate pr-2">
-          <div class="flex items-center gap-1.5">
-            <span class="font-semibold truncate text-white/90">${srv.name}</span>
+          <span class="font-semibold truncate text-white/90">${srv.name}</span>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] text-blue-400 font-mono">${srv.hostIp}</span>
+            <span class="text-[9px] text-slate-500 truncate">· ${srv.categoryLabel}</span>
           </div>
-          <span class="text-[10px] text-slate-400 mt-0.5">${srv.host}</span>
         </div>
         <span class="px-1.5 py-0.5 text-[9px] rounded bg-white/5 border border-white/10 font-mono text-slate-400">${srv.port}</span>
       </button>

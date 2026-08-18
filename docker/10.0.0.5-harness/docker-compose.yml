@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  deepseek-harness:
+    image: deepseek-ai/harness:latest
+    container_name: deepseek-harness
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - GOOGLE_GENAI_USE_VERTEXAI=true
+      - GOOGLE_CLOUD_LOCATION=global
+    volumes:
+      - /root/workspace:/workspace
+      - /etc/dsh.env:/etc/dsh.env:ro
+
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PORT=45876
+      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
