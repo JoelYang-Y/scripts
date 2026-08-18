@@ -80,7 +80,7 @@ export const SITE_CONFIG = {
     },
     {
       name: "DeepSeek Harness",
-      url: "http://10.0.0.5:3000",
+      url: "https://dsh.jhsweetheart.com",
       icon: "/icons/deepseek.png",
       desc: "本地 AI 编程与任务派发中枢",
       category: "ai",
@@ -104,28 +104,28 @@ export const SITE_CONFIG = {
     },
     {
       name: "PVE 物理宿主机",
-      url: "https://10.0.0.4:8006",
+      url: "https://pve.jhsweetheart.com",
       icon: "/icons/proxmox.png",
       desc: "底层虚拟化集群中枢",
       category: "homelab"
     },
     {
       name: "AdGuard Home",
-      url: "http://10.0.0.6:3000",
+      url: "https://adg.jhsweetheart.com",
       icon: "/icons/adguard-home.png",
       desc: "全网广告拦截与安全DNS",
       category: "homelab"
     },
     {
       name: "Homelable",
-      url: "http://10.0.0.3:3003",
+      url: "https://topo.jhsweetheart.com",
       icon: "/icons/homelable.svg",
       desc: "家庭网络拓扑可视化",
       category: "homelab"
     },
     {
       name: "Syncthing",
-      url: "http://10.0.0.3:8384",
+      url: "https://sync.jhsweetheart.com",
       icon: "/icons/syncthing.png",
       desc: "Obsidian 跨端双向同步",
       category: "homelab"
@@ -169,7 +169,7 @@ export const SITE_CONFIG = {
     },
     {
       name: "甲骨文 s-ui",
-      url: "http://129.146.122.202:18848/jhsweet/",
+      url: "https://oracle.jhsweetheart.com:18848/jhsweet/",
       icon: "/icons/oracle.png",
       desc: "Oracle 核心节点网关管理",
       category: "cloud"
@@ -243,21 +243,21 @@ export const SITE_CONFIG = {
     // 5. 影音 PT (media)
     {
       name: "MoviePilot",
-      url: "http://10.0.0.3:3000",
+      url: "https://movie.jhsweetheart.com",
       icon: "/icons/movie-pilot.png",
       desc: "全自动影音整理中枢",
       category: "media"
     },
     {
       name: "Emby 媒体库",
-      url: "http://10.0.0.3:8096",
+      url: "https://emby.jhsweetheart.com",
       icon: "/icons/emby.png",
       desc: "个人家庭流媒体影院",
       category: "media"
     },
     {
       name: "qBittorrent",
-      url: "http://10.0.0.3:8989",
+      url: "https://qb.jhsweetheart.com",
       icon: "/icons/qbittorrent.png",
       desc: "PT/BT 极速下载中枢",
       category: "media"
@@ -280,7 +280,7 @@ export const SITE_CONFIG = {
     // 6. 监控探针 (monitor)
     {
       name: "Uptime Kuma",
-      url: "http://10.0.0.3:3005",
+      url: "https://kuma.jhsweetheart.com",
       icon: "/icons/uptime-kuma.png",
       desc: "全系统服务可用性监控",
       category: "monitor",
@@ -288,7 +288,7 @@ export const SITE_CONFIG = {
     },
     {
       name: "Beszel Hub",
-      url: "http://10.0.0.3:8095",
+      url: "https://beszel.jhsweetheart.com",
       icon: "/icons/beszel.png",
       desc: "轻量级全主机探针大屏",
       category: "monitor",
@@ -305,7 +305,7 @@ export const SITE_CONFIG = {
     },
     {
       name: "Sub-Store",
-      url: "http://10.0.0.3:3002/?api=/T3B9dgzBzdRbBF8Aqx7P",
+      url: "https://sub.jhsweetheart.com/?api=/T3B9dgzBzdRbBF8Aqx7P",
       icon: "/icons/sub-store.png",
       desc: "高级订阅转换与同步",
       category: "tools"
