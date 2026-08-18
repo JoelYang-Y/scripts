@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  metatube:
+    image: metatube/metatube-server:latest
+    container_name: metatube
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - /Volume1/docker/metatube/config:/config

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  music-tag-web:
+    image: xhongc/music_tag_web:latest
+    container_name: music-tag-web
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    volumes:
+      - /Volume1/docker/music-tag-web/config:/app/data
+      - /Volume1/Music:/app/media

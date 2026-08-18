@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  chinesesubfinder:
+    image: allanpk716/chinesesubfinder:latest
+    container_name: chinesesubfinder
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=0
+      - PGID=0
+    volumes:
+      - /Volume1/docker/chinesesubfinder/config:/config
+      - /Volume1/Media:/media

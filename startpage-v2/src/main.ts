@@ -300,8 +300,10 @@ export function renderCardsAndCategories() {
   });
 }
 
-// 6. Docker 代码库全量交互与渲染
+// 6. Docker 代码库全量交互与渲染 (全部 17 个生产容器)
 export function initDockerModal() {
+  let activeCategory = 'all';
+  let searchQuery = '';
   let currentSrv: DockerServiceConfig = DOCKER_SERVICES[0];
 
   const modal = document.getElementById('docker-modal');
@@ -310,37 +312,120 @@ export function initDockerModal() {
   const copyBtn = document.getElementById('copy-compose-btn');
   const copyBtnText = document.getElementById('copy-btn-text');
   const navList = document.getElementById('docker-nav-list');
+  const searchInput = document.getElementById('docker-search-input') as HTMLInputElement | null;
+  const countBadge = document.getElementById('docker-service-count');
 
-  if (navList) {
-    navList.innerHTML = DOCKER_SERVICES.map((srv, idx) => `
+  const categories = [
+    { id: 'all', name: '全部服务' },
+    { id: 'network', name: '网关网络' },
+    { id: 'media', name: '影音影视' },
+    { id: 'monitor', name: '监控探针' },
+    { id: 'music', name: '音乐媒体' },
+    { id: 'data', name: '数据知识' },
+    { id: 'cloud', name: '云端生产' }
+  ];
+
+  // 渲染 Docker 分类 Tab
+  const filterTabsContainer = document.getElementById('docker-filter-tabs');
+  if (filterTabsContainer) {
+    filterTabsContainer.innerHTML = categories.map((c, idx) => `
+      <button 
+        type="button" 
+        data-docker-cat="${c.id}" 
+        class="docker-cat-tab px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${idx === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-slate-200'}"
+      >
+        ${c.name}
+      </button>
+    `).join('');
+
+    document.querySelectorAll('.docker-cat-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.getAttribute('data-docker-cat') || 'all';
+        document.querySelectorAll('.docker-cat-tab').forEach(b => {
+          if (b === btn) {
+            b.className = 'docker-cat-tab px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer bg-blue-600 text-white shadow-md';
+          } else {
+            b.className = 'docker-cat-tab px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer bg-white/5 hover:bg-white/10 text-slate-400 hover:text-slate-200';
+          }
+        });
+        renderNavList();
+      });
+    });
+  }
+
+  function getFilteredServices() {
+    return DOCKER_SERVICES.filter(srv => {
+      const matchCat = activeCategory === 'all' || srv.category === activeCategory;
+      const matchSearch = !searchQuery || 
+        srv.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        srv.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        srv.port.includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+  }
+
+  function renderNavList() {
+    const list = getFilteredServices();
+    if (countBadge) countBadge.innerText = `${list.length} 个配置`;
+    if (!navList) return;
+
+    if (list.length === 0) {
+      navList.innerHTML = `<div class="p-4 text-xs text-slate-500 text-center">无匹配服务</div>`;
+      return;
+    }
+
+    navList.innerHTML = list.map((srv, idx) => `
       <button 
         type="button" 
         data-service-id="${srv.id}" 
-        class="docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer ${idx === 0 ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 active-srv' : 'hover:bg-white/5 text-slate-300'}"
+        class="docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer ${srv.id === currentSrv.id ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 active-srv' : 'hover:bg-white/5 text-slate-300'}"
       >
         <div class="flex flex-col truncate pr-2">
-          <span class="font-semibold truncate text-white/90">${srv.name}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="font-semibold truncate text-white/90">${srv.name}</span>
+          </div>
           <span class="text-[10px] text-slate-400 mt-0.5">${srv.host}</span>
         </div>
         <span class="px-1.5 py-0.5 text-[9px] rounded bg-white/5 border border-white/10 font-mono text-slate-400">${srv.port}</span>
       </button>
     `).join('');
+
+    document.querySelectorAll('.docker-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sId = btn.getAttribute('data-service-id');
+        const target = DOCKER_SERVICES.find(d => d.id === sId);
+        if (target) renderDockerDetail(target);
+      });
+    });
+
+    // 如果当前选中的不在过滤列表中，默认选中第一项
+    if (!list.some(s => s.id === currentSrv.id) && list.length > 0) {
+      renderDockerDetail(list[0]);
+    }
   }
 
-  function renderDockerService(srv: DockerServiceConfig) {
+  function renderDockerDetail(srv: DockerServiceConfig) {
     currentSrv = srv;
     const titleEl = document.getElementById('srv-title');
     const hostEl = document.getElementById('srv-host');
     const descEl = document.getElementById('srv-desc');
     const codeEl = document.getElementById('srv-compose-code');
     const envListEl = document.getElementById('srv-env-list');
+    const catBadge = document.getElementById('srv-cat-badge');
 
     if (titleEl) titleEl.innerText = srv.name;
     if (hostEl) hostEl.innerText = srv.host;
     if (descEl) descEl.innerText = srv.desc;
     if (codeEl) codeEl.innerText = srv.compose;
+    if (catBadge) catBadge.innerText = srv.categoryLabel;
+
     if (envListEl) {
-      envListEl.innerHTML = srv.envDesc.map(e => `<li class="bg-black/30 px-2.5 py-1 rounded-lg border border-white/5">${e}</li>`).join('');
+      envListEl.innerHTML = srv.envDesc.map(e => `
+        <li class="bg-black/40 px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></span>
+          <span>${e}</span>
+        </li>
+      `).join('');
     }
 
     document.querySelectorAll('.docker-nav-btn').forEach(b => {
@@ -351,6 +436,16 @@ export function initDockerModal() {
       }
     });
   }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value.trim();
+      renderNavList();
+    });
+  }
+
+  renderNavList();
+  renderDockerDetail(DOCKER_SERVICES[0]);
 
   if (openBtn && modal) {
     openBtn.addEventListener('click', () => {
@@ -374,14 +469,6 @@ export function initDockerModal() {
     if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
       modal.classList.add('hidden');
     }
-  });
-
-  document.querySelectorAll('.docker-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sId = btn.getAttribute('data-service-id');
-      const target = DOCKER_SERVICES.find(d => d.id === sId);
-      if (target) renderDockerService(target);
-    });
   });
 
   if (copyBtn) {

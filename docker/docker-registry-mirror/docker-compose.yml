@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  docker-registry-mirror:
+    image: registry:2
+    container_name: docker-registry-mirror
+    restart: always
+    environment:
+      - REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io
+    volumes:
+      - /opt/docker-registry/data:/var/lib/registry
+    ports:
+      - "127.0.0.1:5000:5000"
