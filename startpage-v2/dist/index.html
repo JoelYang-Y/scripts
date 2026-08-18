@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Joel's Life · Hub</title>
+  <link rel="icon" type="image/png" href="/avatar.png">
+  <link rel="apple-touch-icon" href="/avatar.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Joel's Life">
+  <meta name="theme-color" content="#060913">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" crossorigin src="/assets/index-CS2k-YpH.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-ewHQVpCB.css">
+</head>
+<body class="theme-nebula flex flex-col items-center justify-between p-4 sm:p-6 md:p-10 selection:bg-blue-500 selection:text-white">
+
+  <!-- 动态深空流光星云容器 -->
+  <div id="nebula-container" class="nebula-container">
+    <div class="nebula-blob blob-1"></div>
+    <div class="nebula-blob blob-2"></div>
+    <div class="nebula-blob blob-3"></div>
+    <div class="nebula-blob blob-4"></div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 relative z-50">
+    <!-- 左侧品牌与问候 -->
+    <div class="flex items-center gap-3.5">
+      <div class="relative">
+        <img src="/avatar.png" alt="Joel's Life" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-2 ring-blue-500/30 object-cover shadow-xl" />
+        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-slate-900"></div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white/95 text-glow">Joel's Life</h1>
+          <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">Hub</span>
+        </div>
+        <p class="text-xs text-slate-300 tracking-wide mt-0.5 text-glow" id="greeting">保持专注与敏锐</p>
+      </div>
+    </div>
+
+    <!-- 右侧：Docker 代码库入口 + 定位天气 + 双时区拟态时钟 + 主题切换 -->
+    <div class="flex items-center flex-wrap gap-2.5 sm:gap-3.5">
+      
+      <!-- Docker 代码库入口按钮 -->
+      <button 
+        type="button" 
+        id="open-docker-repo-btn" 
+        class="flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-500/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl shadow-xl transition-all cursor-pointer group"
+        title="查看 NAS 与服务器全量 Docker 配置代码库"
+      >
+        <i data-lucide="container" class="w-4 h-4 text-blue-400 group-hover:rotate-12 transition-transform"></i>
+        <span class="text-xs font-semibold">Docker 代码库</span>
+      </button>
+
+      <!-- 拟态实时天气卡片 -->
+      <div id="weather-card" class="flex items-center gap-2.5 bg-slate-950/60 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-white/10 shadow-xl transition-all">
+        <div id="weather-icon-wrapper" class="w-6 h-6 flex items-center justify-center text-sky-400">
+          <i data-lucide="cloud-sun" class="w-5 h-5"></i>
+        </div>
+        <div class="flex flex-col text-left">
+          <div class="flex items-center gap-1.5 leading-none">
+            <span id="weather-city" class="text-[11px] font-semibold text-white/95">定位中</span>
+            <span id="weather-condition" class="text-[10px] text-slate-400 font-medium">--</span>
+          </div>
+          <div id="weather-temp" class="text-xs font-bold font-mono text-sky-300 mt-1 leading-none">--°C</div>
+        </div>
+      </div>
+
+      <!-- 双时区拟态时钟卡片 -->
+      <div class="flex items-center gap-3 bg-slate-950/60 backdrop-blur-2xl px-3.5 py-1.5 rounded-2xl border border-white/10 shadow-xl">
+        <!-- 北京时间 -->
+        <div class="text-center pr-3 border-r border-white/10">
+          <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+            <span>🇨🇳</span> 北京时间
+          </div>
+          <div class="text-sm font-bold text-white font-mono tracking-wide mt-0.5 time-glow" id="bj-time">00:00:00</div>
+        </div>
+        <!-- 洛杉矶时间 -->
+        <div class="text-center">
+          <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+            <span>🇺🇸</span> 洛杉矶 (LA)
+          </div>
+          <div class="text-sm font-bold text-amber-400 font-mono tracking-wide mt-0.5" id="la-time">00:00:00</div>
+        </div>
+      </div>
+
+      <!-- 背景视觉主题切换器 -->
+      <div class="relative z-50">
+        <button type="button" id="theme-btn" title="切换背景视觉" class="p-2.5 rounded-2xl bg-slate-950/60 hover:bg-slate-800/80 backdrop-blur-2xl border border-white/10 text-slate-300 hover:text-white shadow-xl transition-all cursor-pointer">
+          <i data-lucide="palette" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+
+        <!-- 主题选择浮窗 -->
+        <div id="theme-menu" class="hidden absolute right-0 top-full mt-2 w-56 glass-card rounded-2xl p-2 shadow-2xl z-[9999] border border-white/20">
+          <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">背景视觉预设</div>
+          <button type="button" data-theme="nebula" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors font-medium cursor-pointer">
+            <span class="w-3 h-3 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-teal-400"></span> 🌌 深空流光星云 (推荐)
+          </button>
+          <button type="button" data-theme="mountain" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+            <span class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500"></span> 🏔️ 苹果暗夜雪峰 (冷峻)
+          </button>
+          <button type="button" data-theme="cyber" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+            <span class="w-3 h-3 rounded-full bg-cyan-500/80"></span> 🪐 科技微光网格 (硬核)
+          </button>
+          <button type="button" data-theme="oled" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+            <span class="w-3 h-3 rounded-full bg-black border border-white/30"></span> 🌑 OLED 纯粹曜黑 (纯黑)
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 中央主交互区 -->
+  <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center my-4 sm:my-8 space-y-8 z-10">
+    
+    <!-- 聚合搜索栏 -->
+    <div class="w-full max-w-2xl relative z-30">
+      <form id="search-form" target="_blank" class="relative group">
+        <div class="search-glow relative flex items-center h-12 sm:h-14 bg-slate-950/70 backdrop-blur-2xl border border-white/15 rounded-2xl sm:rounded-3xl px-2 sm:px-2.5 transition-all duration-300 shadow-2xl">
+          
+          <!-- 引擎切换胶囊 -->
+          <div class="relative flex-shrink-0">
+            <button type="button" id="engine-btn" class="h-8 sm:h-9.5 flex items-center gap-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
+              <span id="engine-icon" class="text-blue-400 font-bold leading-none">G</span>
+              <span id="engine-name" class="hidden sm:inline leading-none">Google</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
+            </button>
+
+            <!-- 引擎浮窗菜单 -->
+            <div id="engine-menu" class="hidden absolute left-0 top-full mt-2 w-44 glass-card rounded-2xl p-1.5 shadow-2xl z-[9999] border border-white/20">
+              <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">选择搜索引擎</div>
+              <button type="button" data-engine="google" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-blue-400">G</span> Google
+              </button>
+              <button type="button" data-engine="bing" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-teal-400">B</span> Bing
+              </button>
+              <button type="button" data-engine="baidu" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-red-400">度</span> 百度
+              </button>
+              <button type="button" data-engine="github" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-purple-400">Git</span> GitHub
+              </button>
+              <button type="button" data-engine="bilibili" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-pink-400">B</span> 哔哩哔哩
+              </button>
+              <button type="button" data-engine="youtube" class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+                <span class="w-4 text-center font-bold text-red-500">YT</span> YouTube
+              </button>
+            </div>
+          </div>
+
+          <!-- 搜索输入框 -->
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="搜索或输入网址... (按 / 聚焦，按 Esc 清空)" 
+            autocomplete="off"
+            class="flex-1 h-full bg-transparent border-0 px-3 sm:px-4 py-0 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-0 font-normal leading-normal"
+            style="caret-color: #3b82f6;"
+          />
+
+          <!-- 搜索提交按钮 -->
+          <button type="submit" class="h-8 w-8 sm:h-9.5 sm:w-9.5 rounded-xl sm:rounded-2xl bg-blue-600/80 hover:bg-blue-600 text-white shadow-lg transition-all flex items-center justify-center flex-shrink-0 cursor-pointer">
+            <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 7 大分类过滤标签栏 -->
+    <div id="category-tabs-container" class="flex items-center gap-2 overflow-x-auto max-w-full pb-1 z-20 scrollbar-none">
+      <!-- 动态注入 -->
+    </div>
+
+    <!-- 38 个服务卡片网格 -->
+    <div id="services-grid" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 z-10">
+      <!-- 动态注入 -->
+    </div>
+
+  </main>
+
+  <!-- 底部状态栏 -->
+  <footer class="w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 pt-6 pb-2 border-t border-white/5 z-10 gap-2">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-slate-300 font-medium">全系统核心服务正常运行中</span>
+    </div>
+    <div class="flex items-center gap-4 text-[11px] text-slate-400">
+      <span>jhsweetheart.com · Designed by JoelYang</span>
+    </div>
+  </footer>
+
+  <!-- Docker 全量配置代码库抽屉弹窗 -->
+  <div id="docker-modal" class="fixed inset-0 z-[10000] modal-backdrop flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="w-full max-w-5xl h-[88vh] glass-card bg-slate-950/90 border border-white/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
+      
+      <!-- 头部控制栏 -->
+      <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <i data-lucide="container" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-white">Docker 配置代码库</h2>
+              <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">Homelab & Cloud</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">全量 NAS 10.0.0.3 与云端生产环境 Compose 配置 · 实时同步 GitHub 私有库</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a 
+            href="https://github.com/JoelYang-Y/scripts" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 hover:text-white border border-white/10 transition-colors"
+          >
+            <i data-lucide="github" class="w-4 h-4"></i>
+            <span>GitHub 仓库</span>
+          </a>
+          <button 
+            type="button" 
+            id="close-docker-modal-btn" 
+            class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 主体区域：左侧列表 + 右侧配置详情 -->
+      <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- 左侧服务导航列表 -->
+        <div id="docker-nav-list" class="w-full md:w-72 border-r border-white/10 p-3 flex flex-col gap-1.5 overflow-y-auto bg-slate-900/30">
+          <!-- 动态注入 -->
+        </div>
+
+        <!-- 右侧配置展示与代码高亮 -->
+        <div class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-slate-950/40">
+          
+          <!-- 服务元信息 -->
+          <div class="flex flex-wrap items-start justify-between gap-3 bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 id="srv-title" class="text-base font-bold text-white">加载中...</h3>
+                <span id="srv-host" class="px-2 py-0.5 text-[10px] font-mono bg-blue-500/20 text-blue-400 rounded-md border border-blue-500/30">--</span>
+              </div>
+              <p id="srv-desc" class="text-xs text-slate-300 mt-1">--</p>
+            </div>
+            <button 
+              type="button" 
+              id="copy-compose-btn" 
+              class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
+            >
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span id="copy-btn-text">复制 docker-compose.yml</span>
+            </button>
+          </div>
+
+          <!-- 关键环境变量说明 -->
+          <div class="bg-slate-900/30 p-3.5 rounded-2xl border border-white/5">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
+              <span>环境与参数映射</span>
+            </div>
+            <ul id="srv-env-list" class="space-y-1 text-xs text-slate-300 font-mono">
+              <!-- 动态注入 -->
+            </ul>
+          </div>
+
+          <!-- YAML 代码区域 -->
+          <div class="flex-1 flex flex-col relative rounded-2xl overflow-hidden border border-white/10 bg-black/60 shadow-inner">
+            <div class="px-4 py-2 bg-slate-900/80 border-b border-white/10 flex items-center justify-between text-xs text-slate-400">
+              <span class="font-mono">docker-compose.yml</span>
+              <span class="text-[10px]">YAML Syntax</span>
+            </div>
+            <pre class="flex-1 p-4 overflow-x-auto text-xs font-mono text-emerald-300 leading-relaxed"><code id="srv-compose-code">--</code></pre>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

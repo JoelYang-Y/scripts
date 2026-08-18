@@ -1,0 +1,33 @@
+---
+import type { NavCard } from '../config/site.config';
+
+interface Props {
+  card: NavCard;
+}
+
+const { card } = Astro.props;
+---
+
+<a 
+  href={card.url} 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  data-category={card.category} 
+  class="nav-card glass-card p-4 rounded-2xl flex flex-col justify-between group cursor-pointer"
+>
+  <div class="flex items-start justify-between">
+    <div class="brand-icon-wrapper">
+      <img src={card.icon} alt={card.name} class="brand-icon-img" loading="lazy" />
+    </div>
+    {card.statusDot && (
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+    )}
+  </div>
+  <div class="mt-4">
+    <h3 class="text-sm font-semibold text-white/95 group-hover:text-blue-400 transition-colors">{card.name}</h3>
+    <p class="text-[11px] text-slate-400 mt-0.5 truncate">{card.desc}</p>
+  </div>
+</a>

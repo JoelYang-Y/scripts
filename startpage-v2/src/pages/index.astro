@@ -1,0 +1,85 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BackgroundNebula from '../components/BackgroundNebula.astro';
+import Header from '../components/Header.astro';
+import SearchBar from '../components/SearchBar.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import DockerRepoModal from '../components/DockerRepoModal.astro';
+import { SITE_CONFIG } from '../config/site.config';
+---
+
+<Layout title={`${SITE_CONFIG.title} · Hub`}>
+  <!-- 动态流光星云背景 -->
+  <BackgroundNebula />
+
+  <!-- 顶部状态栏与双时区时钟 -->
+  <Header />
+
+  <!-- 中央主交互区 -->
+  <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center my-4 sm:my-8 space-y-8 z-10">
+    
+    <!-- 聚合搜索栏 -->
+    <SearchBar />
+
+    <!-- 7 大分类过滤标签栏 -->
+    <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-1 z-20 scrollbar-none">
+      {SITE_CONFIG.categories.map((cat, idx) => (
+        <button 
+          type="button" 
+          data-category-tab={cat.id} 
+          class={`category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${idx === 0 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 active-tab' : 'bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md'}`}
+        >
+          {cat.name}
+        </button>
+      ))}
+    </div>
+
+    <!-- 38 个服务卡片网格 -->
+    <div id="services-grid" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 z-10">
+      {SITE_CONFIG.cards.map(card => (
+        <ServiceCard card={card} />
+      ))}
+    </div>
+
+  </main>
+
+  <!-- 底部状态栏 -->
+  <footer class="w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 pt-6 pb-2 border-t border-white/5 z-10 gap-2">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-slate-300 font-medium">全系统核心服务正常运行中</span>
+    </div>
+    <div class="flex items-center gap-4 text-[11px] text-slate-400">
+      <span>jhsweetheart.com · Designed by JoelYang</span>
+    </div>
+  </footer>
+
+  <!-- Docker 全量配置代码库抽屉弹窗 -->
+  <DockerRepoModal />
+</Layout>
+
+<script is:inline>
+  // 分类 Tab 过滤交互
+  document.querySelectorAll('.category-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const catId = tab.getAttribute('data-category-tab');
+      
+      document.querySelectorAll('.category-tab').forEach(t => {
+        if (t === tab) {
+          t.className = 'category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/20 active-tab cursor-pointer';
+        } else {
+          t.className = 'category-tab px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white border border-white/10 backdrop-blur-md cursor-pointer';
+        }
+      });
+
+      document.querySelectorAll('.nav-card').forEach(card => {
+        const cardCat = card.getAttribute('data-category');
+        if (catId === 'all' || cardCat === catId) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

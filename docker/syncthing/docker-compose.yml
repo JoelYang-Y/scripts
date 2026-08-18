@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=0
+      - PGID=0
+    volumes:
+      - /Volume1/docker/syncthing/data:/var/syncthing

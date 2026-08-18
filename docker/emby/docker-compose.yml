@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  emby:
+    image: amilys/embyserver:latest
+    container_name: emby
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - UID=0
+      - GID=0
+      - GIDLIST=0
+    volumes:
+      - /Volume1/docker/emby/config:/config
+      - /Volume1/Media:/media
+    devices:
+      - /dev/dri:/dev/dri

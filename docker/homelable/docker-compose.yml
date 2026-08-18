@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  homelable:
+    image: ghcr.io/homelable/homelable:latest
+    container_name: homelable
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    volumes:
+      - /Volume1/docker/homelable/data:/app/data

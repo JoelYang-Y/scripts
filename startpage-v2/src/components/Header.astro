@@ -1,0 +1,241 @@
+---
+import { SITE_CONFIG } from '../config/site.config';
+---
+
+<header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 relative z-50">
+  <!-- 左侧品牌与问候 -->
+  <div class="flex items-center gap-3.5">
+    <div class="relative">
+      <img src="/avatar.png" alt="Joel's Life" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-2 ring-blue-500/30 object-cover shadow-xl" />
+      <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-slate-900"></div>
+    </div>
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white/95 text-glow">{SITE_CONFIG.title}</h1>
+        <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">{SITE_CONFIG.badge}</span>
+      </div>
+      <p class="text-xs text-slate-300 tracking-wide mt-0.5 text-glow" id="greeting">保持专注与敏锐</p>
+    </div>
+  </div>
+
+  <!-- 右侧：Docker 代码库入口 + 定位天气 + 双时区拟态时钟 + 主题切换 -->
+  <div class="flex items-center flex-wrap gap-2.5 sm:gap-3.5">
+    
+    <!-- Docker 代码库入口按钮 -->
+    <button 
+      type="button" 
+      id="open-docker-repo-btn" 
+      class="flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-500/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl shadow-xl transition-all cursor-pointer group"
+      title="查看 NAS 与服务器全量 Docker 配置代码库"
+    >
+      <i data-lucide="container" class="w-4 h-4 text-blue-400 group-hover:rotate-12 transition-transform"></i>
+      <span class="text-xs font-semibold">Docker 代码库</span>
+    </button>
+
+    <!-- 拟态实时天气卡片 -->
+    <div id="weather-card" class="flex items-center gap-2.5 bg-slate-950/60 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-white/10 shadow-xl transition-all">
+      <div id="weather-icon-wrapper" class="w-6 h-6 flex items-center justify-center text-sky-400">
+        <i data-lucide="cloud-sun" class="w-5 h-5"></i>
+      </div>
+      <div class="flex flex-col text-left">
+        <div class="flex items-center gap-1.5 leading-none">
+          <span id="weather-city" class="text-[11px] font-semibold text-white/95">定位中</span>
+          <span id="weather-condition" class="text-[10px] text-slate-400 font-medium">--</span>
+        </div>
+        <div id="weather-temp" class="text-xs font-bold font-mono text-sky-300 mt-1 leading-none">--°C</div>
+      </div>
+    </div>
+
+    <!-- 双时区拟态时钟卡片 -->
+    <div class="flex items-center gap-3 bg-slate-950/60 backdrop-blur-2xl px-3.5 py-1.5 rounded-2xl border border-white/10 shadow-xl">
+      <!-- 北京时间 -->
+      <div class="text-center pr-3 border-r border-white/10">
+        <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+          <span>🇨🇳</span> 北京时间
+        </div>
+        <div class="text-sm font-bold text-white font-mono tracking-wide mt-0.5 time-glow" id="bj-time">00:00:00</div>
+      </div>
+      <!-- 洛杉矶时间 -->
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 font-semibold tracking-wider flex items-center justify-center gap-1">
+          <span>🇺🇸</span> 洛杉矶 (LA)
+        </div>
+        <div class="text-sm font-bold text-amber-400 font-mono tracking-wide mt-0.5" id="la-time">00:00:00</div>
+      </div>
+    </div>
+
+    <!-- 背景视觉主题切换器 -->
+    <div class="relative z-50">
+      <button type="button" id="theme-btn" title="切换背景视觉" class="p-2.5 rounded-2xl bg-slate-950/60 hover:bg-slate-800/80 backdrop-blur-2xl border border-white/10 text-slate-300 hover:text-white shadow-xl transition-all cursor-pointer">
+        <i data-lucide="palette" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
+
+      <!-- 主题选择浮窗 -->
+      <div id="theme-menu" class="hidden absolute right-0 top-full mt-2 w-56 glass-card rounded-2xl p-2 shadow-2xl z-[9999] border border-white/20">
+        <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">背景视觉预设</div>
+        <button type="button" data-theme="nebula" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors font-medium cursor-pointer">
+          <span class="w-3 h-3 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-teal-400"></span> 🌌 深空流光星云 (推荐)
+        </button>
+        <button type="button" data-theme="mountain" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+          <span class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500"></span> 🏔️ 苹果暗夜雪峰 (冷峻)
+        </button>
+        <button type="button" data-theme="cyber" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+          <span class="w-3 h-3 rounded-full bg-cyan-500/80"></span> 🪐 科技微光网格 (硬核)
+        </button>
+        <button type="button" data-theme="oled" class="theme-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer">
+          <span class="w-3 h-3 rounded-full bg-black border border-white/30"></span> 🌑 OLED 纯粹曜黑 (纯黑)
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  // 1. 主题切换与存储
+  const themeBtn = document.getElementById('theme-btn');
+  const themeMenu = document.getElementById('theme-menu');
+  const nebulaContainer = document.getElementById('nebula-container');
+
+  if (themeBtn && themeMenu) {
+    themeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      themeMenu.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.theme-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const themeKey = btn.getAttribute('data-theme');
+        if (themeKey) window.setTheme(themeKey);
+      });
+    });
+  }
+
+  window.setTheme = function(themeKey) {
+    document.body.className = `theme-${themeKey} flex flex-col items-center justify-between p-4 sm:p-6 md:p-10 selection:bg-blue-500 selection:text-white`;
+    if (nebulaContainer) {
+      nebulaContainer.style.display = themeKey === 'nebula' ? 'block' : 'none';
+    }
+    localStorage.setItem('user_theme', themeKey);
+    if (themeMenu) themeMenu.classList.add('hidden');
+  };
+
+  const savedTheme = localStorage.getItem('user_theme') || 'nebula';
+  window.setTheme(savedTheme);
+
+  // 2. 双时区秒级时钟
+  function updateClocks() {
+    const now = new Date();
+    const bjEl = document.getElementById('bj-time');
+    const laEl = document.getElementById('la-time');
+    const greetEl = document.getElementById('greeting');
+
+    if (bjEl) {
+      bjEl.innerText = new Intl.DateTimeFormat('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+    }
+
+    if (laEl) {
+      laEl.innerText = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+    }
+
+    if (greetEl) {
+      const hour = parseInt(new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', hour: 'numeric', hour12: false }).format(now));
+      let greetText = '夜深了，注意休息';
+      if (hour >= 5 && hour < 11) greetText = '清晨好，迎接崭新的一天';
+      else if (hour >= 11 && hour < 14) greetText = '午后好，保持专注与敏锐';
+      else if (hour >= 14 && hour < 18) greetText = '下午好，咖啡时刻与创造力';
+      else if (hour >= 18 && hour < 23) greetText = '傍晚好，享受属于自己的时光';
+      const dateStr = now.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'long' });
+      greetEl.innerText = greetText + ' · ' + dateStr;
+    }
+  }
+
+  updateClocks();
+  setInterval(updateClocks, 1000);
+
+  // 3. 高精度天气与缓存
+  const weatherMap = {
+    0: { icon: 'sun', text: '晴朗' },
+    1: { icon: 'cloud-sun', text: '少云' },
+    2: { icon: 'cloud-sun', text: '多云' },
+    3: { icon: 'cloudy', text: '阴天' },
+    45: { icon: 'cloud-fog', text: '大雾' },
+    48: { icon: 'cloud-fog', text: '冻雾' },
+    51: { icon: 'cloud-drizzle', text: '细雨' },
+    61: { icon: 'cloud-rain', text: '小雨' },
+    63: { icon: 'cloud-rain', text: '中雨' },
+    65: { icon: 'cloud-rain', text: '大雨' },
+    71: { icon: 'cloud-snow', text: '小雪' },
+    75: { icon: 'cloud-snow', text: '暴雪' },
+    80: { icon: 'cloud-rain', text: '阵雨' },
+    95: { icon: 'cloud-lightning', text: '雷阵雨' }
+  };
+
+  function renderWeather(city, temp, code) {
+    const cityEl = document.getElementById('weather-city');
+    const condEl = document.getElementById('weather-condition');
+    const tempEl = document.getElementById('weather-temp');
+    const iconWrapper = document.getElementById('weather-icon-wrapper');
+
+    const info = weatherMap[code] || { icon: 'cloud-sun', text: '多云' };
+    if (cityEl) cityEl.innerText = city || '当前位置';
+    if (condEl) condEl.innerText = info.text;
+    if (tempEl) tempEl.innerText = `${Math.round(temp)}°C`;
+    if (iconWrapper && window.lucide) {
+      iconWrapper.innerHTML = `<i data-lucide="${info.icon}" class="w-5 h-5"></i>`;
+      window.lucide.createIcons();
+    }
+  }
+
+  async function initWeather() {
+    try {
+      const cached = localStorage.getItem('cached_weather_data');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < 15 * 60 * 1000) {
+          renderWeather(parsed.city, parsed.temp, parsed.code);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    let lat = 32.06, lon = 118.79, cityName = '南京';
+    try {
+      const ipRes = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3500) });
+      if (ipRes.ok) {
+        const ipData = await ipRes.json();
+        if (ipData.latitude && ipData.longitude) {
+          lat = ipData.latitude;
+          lon = ipData.longitude;
+          cityName = ipData.city || cityName;
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(4500) });
+      if (res.ok) {
+        const data = await res.json();
+        const cur = data.current_weather;
+        if (cur) {
+          renderWeather(cityName, cur.temperature, cur.weathercode);
+          localStorage.setItem('cached_weather_data', JSON.stringify({
+            city: cityName, temp: cur.temperature, code: cur.weathercode, timestamp: Date.now()
+          }));
+        }
+      }
+    } catch (err) {}
+  }
+
+  initWeather();
+</script>

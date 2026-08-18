@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="mt-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="mt-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#mt-bg)" stroke="rgba(251, 191, 36, 0.3)" stroke-width="2"/>
+  <!-- M-Team 字母 M 与 PT 标志 -->
+  <path d="M30 88 L30 40 L48 64 L64 43 L80 64 L98 40 L98 88 L84 88 L84 62 L71 78 L57 78 L44 62 L44 88 Z" fill="url(#mt-gold)"/>
+  <rect x="52" y="94" width="24" height="6" rx="3" fill="#FBBF24" opacity="0.8"/>
+</svg>

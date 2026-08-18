@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="xh-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1C1917"/>
+      <stop offset="100%" stop-color="#0C0A09"/>
+    </linearGradient>
+    <linearGradient id="xh-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#xh-bg)" stroke="rgba(245, 158, 11, 0.3)" stroke-width="2"/>
+  <!-- 艺术化 X 标 -->
+  <path d="M34 36 L52 64 L34 92 L48 92 L64 68 L80 92 L94 92 L76 64 L94 36 L80 36 L64 60 L48 36 Z" fill="url(#xh-gold)"/>
+  <circle cx="64" cy="64" r="8" fill="#1C1917" stroke="#F59E0B" stroke-width="2"/>
+</svg>

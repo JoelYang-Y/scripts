@@ -1,0 +1,119 @@
+---
+import { SITE_CONFIG } from '../config/site.config';
+---
+
+<div class="w-full max-w-2xl relative z-30">
+  <form id="search-form" target="_blank" class="relative group">
+    <div class="search-glow relative flex items-center h-12 sm:h-14 bg-slate-950/70 backdrop-blur-2xl border border-white/15 rounded-2xl sm:rounded-3xl px-2 sm:px-2.5 transition-all duration-300 shadow-2xl">
+      
+      <!-- 引擎切换胶囊 -->
+      <div class="relative flex-shrink-0">
+        <button type="button" id="engine-btn" class="h-8 sm:h-9.5 flex items-center gap-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
+          <span id="engine-icon" class="text-blue-400 font-bold leading-none">G</span>
+          <span id="engine-name" class="hidden sm:inline leading-none">Google</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
+        </button>
+
+        <!-- 引擎浮窗菜单 -->
+        <div id="engine-menu" class="hidden absolute left-0 top-full mt-2 w-44 glass-card rounded-2xl p-1.5 shadow-2xl z-[9999] border border-white/20">
+          <div class="text-[10px] text-slate-400 px-2.5 py-1 font-semibold uppercase tracking-wider">选择搜索引擎</div>
+          {SITE_CONFIG.searchEngines.map(eng => (
+            <button 
+              type="button" 
+              data-engine={eng.id} 
+              class="engine-option-btn w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs hover:bg-blue-600/20 hover:text-blue-400 text-left transition-colors cursor-pointer"
+            >
+              <span class={`w-4 text-center font-bold ${eng.iconColor}`}>{eng.icon}</span> {eng.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- 搜索输入框 -->
+      <input 
+        type="text" 
+        id="search-input" 
+        placeholder="搜索或输入网址... (按 / 聚焦，按 Esc 清空)" 
+        autocomplete="off"
+        class="flex-1 h-full bg-transparent border-0 px-3 sm:px-4 py-0 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-0 font-normal leading-normal"
+        style="caret-color: #3b82f6;"
+      />
+
+      <!-- 搜索提交按钮 -->
+      <button type="submit" class="h-8 w-8 sm:h-9.5 sm:w-9.5 rounded-xl sm:rounded-2xl bg-blue-600/80 hover:bg-blue-600 text-white shadow-lg transition-all flex items-center justify-center flex-shrink-0 cursor-pointer">
+        <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script is:inline>
+  const engineMap = {
+    google: { name: 'Google', icon: 'G', url: 'https://www.google.com/search?q=' },
+    bing: { name: 'Bing', icon: 'B', url: 'https://www.bing.com/search?q=' },
+    baidu: { name: '百度', icon: '度', url: 'https://www.baidu.com/s?wd=' },
+    github: { name: 'GitHub', icon: 'Git', url: 'https://github.com/search?q=' },
+    bilibili: { name: 'B站', icon: 'B', url: 'https://search.bilibili.com/all?keyword=' },
+    youtube: { name: 'YouTube', icon: 'YT', url: 'https://www.youtube.com/results?search_query=' }
+  };
+
+  let activeEngine = 'google';
+  const engineBtn = document.getElementById('engine-btn');
+  const engineMenu = document.getElementById('engine-menu');
+  const searchInput = document.getElementById('search-input');
+  const searchForm = document.getElementById('search-form');
+
+  if (engineBtn && engineMenu) {
+    engineBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      engineMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      engineMenu.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.engine-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const engId = btn.getAttribute('data-engine');
+        if (engId && engineMap[engId]) {
+          activeEngine = engId;
+          const eng = engineMap[engId];
+          document.getElementById('engine-name').innerText = eng.name;
+          document.getElementById('engine-icon').innerText = eng.icon;
+          engineMenu.classList.add('hidden');
+          if (searchInput) searchInput.focus();
+        }
+      });
+    });
+  }
+
+  if (searchForm && searchInput) {
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      if (/^(http|https):\/\/[^ "\n\r]+$/.test(query)) {
+        window.open(query, '_blank');
+        return;
+      }
+      if (/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?(:[0-9]{1,5})?(\/.*)?$/.test(query)) {
+        window.open('https://' + query, '_blank');
+        return;
+      }
+
+      window.open(engineMap[activeEngine].url + encodeURIComponent(query), '_blank');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      } else if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+      }
+    });
+  }
+</script>

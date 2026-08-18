@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  moviepilot:
+    image: jxxghp/moviepilot:latest
+    container_name: moviepilot
+    restart: unless-stopped
+    hostname: moviepilot
+    ports:
+      - "3000:3000"
+    volumes:
+      - /Volume1/docker/moviepilot/config:/config
+      - /Volume1/Media:/media
+      - /Volume1/docker/qbittorrent/downloads:/downloads
+      - /var/run/docker.sock:/var/run/docker.sock:ro

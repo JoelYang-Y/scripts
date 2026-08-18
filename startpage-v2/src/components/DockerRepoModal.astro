@@ -1,0 +1,284 @@
+---
+import { DOCKER_SERVICES } from '../config/docker-configs';
+---
+
+<div id="docker-modal" class="fixed inset-0 z-[10000] modal-backdrop flex items-center justify-center p-3 sm:p-6 hidden">
+  <div class="w-full max-w-5xl h-[88vh] glass-card bg-slate-950/90 border border-white/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
+    
+    <!-- 头部控制栏 -->
+    <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <i data-lucide="container" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-white">Docker 配置代码库</h2>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">Homelab & Cloud</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">全量 NAS 10.0.0.3 与云端生产环境 Compose 配置 · 实时同步 GitHub 私有库</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a 
+          href="https://github.com/JoelYang-Y/scripts" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 hover:text-white border border-white/10 transition-colors"
+        >
+          <i data-lucide="github" class="w-4 h-4"></i>
+          <span>GitHub 仓库</span>
+        </a>
+        <button 
+          type="button" 
+          id="close-docker-modal-btn" 
+          class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 主体区域：左侧列表 + 右侧配置详情 -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+      
+      <!-- 左侧服务导航列表 -->
+      <div class="w-full md:w-72 border-r border-white/10 p-3 flex flex-col gap-1.5 overflow-y-auto bg-slate-900/30">
+        <div class="text-[11px] font-semibold text-slate-400 px-3 py-1 uppercase tracking-wider">服务清单 ({DOCKER_SERVICES.length})</div>
+        {DOCKER_SERVICES.map((srv, idx) => (
+          <button 
+            type="button" 
+            data-service-id={srv.id} 
+            class={`docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer ${idx === 0 ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 active-srv' : 'hover:bg-white/5 text-slate-300'}`}
+          >
+            <div class="flex flex-col truncate pr-2">
+              <span class="font-semibold truncate text-white/90">{srv.name}</span>
+              <span class="text-[10px] text-slate-400 mt-0.5">{srv.host}</span>
+            </div>
+            <span class="px-1.5 py-0.5 text-[9px] rounded bg-white/5 border border-white/10 font-mono text-slate-400">{srv.port}</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- 右侧配置展示与代码高亮 -->
+      <div class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-slate-950/40">
+        
+        <!-- 服务元信息 -->
+        <div class="flex flex-wrap items-start justify-between gap-3 bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="srv-title" class="text-base font-bold text-white">{DOCKER_SERVICES[0].name}</h3>
+              <span id="srv-host" class="px-2 py-0.5 text-[10px] font-mono bg-blue-500/20 text-blue-400 rounded-md border border-blue-500/30">{DOCKER_SERVICES[0].host}</span>
+            </div>
+            <p id="srv-desc" class="text-xs text-slate-300 mt-1">{DOCKER_SERVICES[0].desc}</p>
+          </div>
+          <button 
+            type="button" 
+            id="copy-compose-btn" 
+            class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
+          >
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span id="copy-btn-text">复制 docker-compose.yml</span>
+          </button>
+        </div>
+
+        <!-- 关键环境变量说明 -->
+        <div class="bg-slate-900/30 p-3.5 rounded-2xl border border-white/5">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>环境与参数映射</span>
+          </div>
+          <ul id="srv-env-list" class="space-y-1 text-xs text-slate-300 font-mono">
+            {DOCKER_SERVICES[0].envDesc.map(env => (
+              <li class="bg-black/30 px-2.5 py-1 rounded-lg border border-white/5">{env}</li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- YAML 代码区域 -->
+        <div class="flex-1 flex flex-col relative rounded-2xl overflow-hidden border border-white/10 bg-black/60 shadow-inner">
+          <div class="px-4 py-2 bg-slate-900/80 border-b border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <span class="font-mono">docker-compose.yml</span>
+            <span class="text-[10px]">YAML Syntax</span>
+          </div>
+          <pre class="flex-1 p-4 overflow-x-auto text-xs font-mono text-emerald-300 leading-relaxed"><code id="srv-compose-code">{DOCKER_SERVICES[0].compose}</code></pre>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script is:inline>
+  const DOCKER_DATA = [
+    {
+      id: "sub-store",
+      name: "Sub-Store 订阅转换中枢",
+      desc: "高级订阅转换、节点过滤、正则重命名与同步后端",
+      port: "3002",
+      host: "10.0.0.3 (NAS)",
+      envDesc: [
+        "SUB_STORE_FRONTEND_BACKEND_PATH: API 访问安全前缀 (/T3B9dgzBzdRbBF8Aqx7P)",
+        "SUB_STORE_DATA_BASE_PATH: 数据持久化路径"
+      ],
+      compose: `version: '3.8'\nservices:\n  sub-store:\n    image: xream/sub-store:latest\n    container_name: sub-store\n    restart: always\n    network_mode: host\n    environment:\n      - SUB_STORE_FRONTEND_BACKEND_PATH=/T3B9dgzBzdRbBF8Aqx7P\n      - SUB_STORE_DATA_BASE_PATH=/opt/app/data\n    volumes:\n      - /Volume1/docker/sub-store:/opt/app/data\n`
+    },
+    {
+      id: "homelable",
+      name: "Homelable 拓扑可视化",
+      desc: "家庭网络架构、服务依赖与物理节点拓扑大屏",
+      port: "3003",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["PORT: 服务监听端口 (3003)"],
+      compose: `version: '3.8'\nservices:\n  homelable:\n    image: ghcr.io/homelable/homelable:latest\n    container_name: homelable\n    restart: unless-stopped\n    ports:\n      - "3003:3000"\n    volumes:\n      - /Volume1/docker/homelable/data:/app/data\n`
+    },
+    {
+      id: "beszel-hub",
+      name: "Beszel Hub 全主机探针大屏",
+      desc: "轻量级全物理机/虚拟机/VPS 资源探针监控中枢",
+      port: "8095",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["PORT: WebUI 面板端口 (8095)", "KEY: Agent 通信公钥认证"],
+      compose: `version: '3.8'\nservices:\n  beszel-hub:\n    image: henrygd/beszel:latest\n    container_name: beszel-hub\n    restart: unless-stopped\n    ports:\n      - "8095:8090"\n    volumes:\n      - /Volume1/docker/beszel/data:/beszel_data\n`
+    },
+    {
+      id: "uptime-kuma",
+      name: "Uptime Kuma 服务监控",
+      desc: "19+ 核心容器与网络链路可用性秒级状态探测",
+      port: "3005",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["DATA_DIR: SQLite 数据库与监控历史存储路径"],
+      compose: `version: '3.8'\nservices:\n  uptime-kuma:\n    image: louislam/uptime-kuma:latest\n    container_name: uptime-kuma\n    restart: always\n    ports:\n      - "3005:3001"\n    volumes:\n      - /Volume1/docker/uptime-kuma:/app/data\n`
+    },
+    {
+      id: "emby",
+      name: "Emby Server 家庭影院",
+      desc: "个人私有流媒体影院与音视频硬件转码服务器",
+      port: "8096",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["UID/GID: 权限映射", "devices: /dev/dri 硬件转码直通"],
+      compose: `version: '3.8'\nservices:\n  emby:\n    image: amilys/embyserver:latest\n    container_name: emby\n    restart: unless-stopped\n    network_mode: host\n    environment:\n      - UID=0\n      - GID=0\n    volumes:\n      - /Volume1/docker/emby/config:/config\n      - /Volume1/Media:/media\n    devices:\n      - /dev/dri:/dev/dri\n`
+    },
+    {
+      id: "moviepilot",
+      name: "MoviePilot 自动刮削整理",
+      desc: "全自动影视搜索、订阅、下载联动与刮削整理中枢",
+      port: "3000",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["NGINX_PORT: 3000", "AUTH_KEY: API 安全密钥"],
+      compose: `version: '3.8'\nservices:\n  moviepilot:\n    image: jxxghp/moviepilot:latest\n    container_name: moviepilot\n    restart: unless-stopped\n    ports:\n      - "3000:3000"\n    volumes:\n      - /Volume1/docker/moviepilot/config:/config\n      - /Volume1/Media:/media\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n`
+    },
+    {
+      id: "qbittorrent",
+      name: "qBittorrent 极速下载器",
+      desc: "高带宽 PT/BT 资源多线程下载与做种服务",
+      port: "8989",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["PUID/PGID: 0", "WEBUI_PORT: 8989"],
+      compose: `version: '3.8'\nservices:\n  qbittorrent:\n    image: linuxserver/qbittorrent:latest\n    container_name: qbittorrent\n    restart: unless-stopped\n    network_mode: host\n    environment:\n      - PUID=0\n      - PGID=0\n      - WEBUI_PORT=8989\n    volumes:\n      - /Volume1/docker/qbittorrent/config:/config\n      - /Volume1/docker/qbittorrent/downloads:/downloads\n`
+    },
+    {
+      id: "syncthing",
+      name: "Syncthing 私有全端同步",
+      desc: "Obsidian 笔记知识库与重要配置跨端双向同步",
+      port: "8384",
+      host: "10.0.0.3 (NAS)",
+      envDesc: ["GUI: 8384", "Sync: 22000"],
+      compose: `version: '3.8'\nservices:\n  syncthing:\n    image: syncthing/syncthing:latest\n    container_name: syncthing\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      - /Volume1/docker/syncthing/data:/var/syncthing\n`
+    },
+    {
+      id: "adguardhome",
+      name: "AdGuard Home DNS 网关",
+      desc: "全网广告拦截与安全 DNS 解析网关",
+      port: "3000 / 53",
+      host: "10.0.0.6 (DNS Alpine)",
+      envDesc: ["53: DNS 解析", "3000: Web 控制台"],
+      compose: `version: '3.8'\nservices:\n  adguardhome:\n    image: adguard/adguardhome:latest\n    container_name: adguardhome\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      - /opt/adguardhome/work:/opt/adguardhome/work\n      - /opt/adguardhome/conf:/opt/adguardhome/conf\n`
+    },
+    {
+      id: "vaultwarden",
+      name: "Vaultwarden 密码保险库",
+      desc: "轻量级 Bitwarden 兼容私有端到端加密密码管理器",
+      port: "8080",
+      host: "129.146.122.202 (甲骨文 VPS)",
+      envDesc: ["SIGNUPS_ALLOWED: false", "WEBSOCKET_ENABLED: true"],
+      compose: `version: '3.8'\nservices:\n  vaultwarden:\n    image: vaultwarden/server:latest\n    container_name: vaultwarden\n    restart: always\n    environment:\n      - SIGNUPS_ALLOWED=false\n      - WEBSOCKET_ENABLED=true\n    volumes:\n      - /opt/vaultwarden/data:/data\n    ports:\n      - "127.0.0.1:8080:80"\n`
+    }
+  ];
+
+  let currentSrv = DOCKER_DATA[0];
+
+  const modal = document.getElementById('docker-modal');
+  const openBtn = document.getElementById('open-docker-repo-btn');
+  const closeBtn = document.getElementById('close-docker-modal-btn');
+  const copyBtn = document.getElementById('copy-compose-btn');
+  const copyBtnText = document.getElementById('copy-btn-text');
+
+  function renderDockerService(srv) {
+    currentSrv = srv;
+    document.getElementById('srv-title').innerText = srv.name;
+    document.getElementById('srv-host').innerText = srv.host;
+    document.getElementById('srv-desc').innerText = srv.desc;
+    document.getElementById('srv-compose-code').innerText = srv.compose;
+
+    const envListEl = document.getElementById('srv-env-list');
+    envListEl.innerHTML = srv.envDesc.map(e => `<li class="bg-black/30 px-2.5 py-1 rounded-lg border border-white/5">${e}</li>`).join('');
+
+    document.querySelectorAll('.docker-nav-btn').forEach(b => {
+      if (b.getAttribute('data-service-id') === srv.id) {
+        b.className = 'docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer bg-blue-600/30 text-blue-300 border border-blue-500/40 active-srv';
+      } else {
+        b.className = 'docker-nav-btn w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between cursor-pointer hover:bg-white/5 text-slate-300';
+      }
+    });
+  }
+
+  if (openBtn && modal) {
+    openBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+  }
+
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+    }
+  });
+
+  document.querySelectorAll('.docker-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sId = btn.getAttribute('data-service-id');
+      const target = DOCKER_DATA.find(d => d.id === sId);
+      if (target) renderDockerService(target);
+    });
+  });
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      if (currentSrv && currentSrv.compose) {
+        try {
+          await navigator.clipboard.writeText(currentSrv.compose);
+          copyBtnText.innerText = '已复制到剪贴板！';
+          setTimeout(() => {
+            copyBtnText.innerText = '复制 docker-compose.yml';
+          }, 2000);
+        } catch (err) {}
+      }
+    });
+  }
+</script>

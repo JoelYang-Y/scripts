@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=0
+      - PGID=0
+      - WEBUI_PORT=8989
+    volumes:
+      - /Volume1/docker/qbittorrent/config:/config
+      - /Volume1/docker/qbittorrent/downloads:/downloads

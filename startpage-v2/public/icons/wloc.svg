@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="wloc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="pin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E" />
+      <stop offset="100%" stop-color="#BE123C" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0B132B" stroke="rgba(56, 189, 248, 0.25)" stroke-width="2"/>
+  <!-- 无线波纹 -->
+  <circle cx="64" cy="64" r="46" fill="none" stroke="#38BDF8" stroke-width="2.5" opacity="0.25" stroke-dasharray="4 4"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#38BDF8" stroke-width="3" opacity="0.45"/>
+  <circle cx="64" cy="64" r="22" fill="none" stroke="#38BDF8" stroke-width="3" opacity="0.75"/>
+  <!-- 定位图钉 -->
+  <path d="M64 28 C51.85 28 42 37.85 42 50 C42 66.5 64 88 64 88 C64 88 86 66.5 86 50 C86 37.85 76.15 28 64 28 Z" fill="url(#pin-grad)"/>
+  <circle cx="64" cy="50" r="7" fill="#FFFFFF"/>
+  <ellipse cx="64" cy="94" rx="14" ry="4" fill="#38BDF8" opacity="0.5"/>
+</svg>
