@@ -37,6 +37,13 @@
         "icon": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/deepseek.png",
         "desc": "一键秒开 · AI 编程智能体",
         "pulse": true
+      },
+      {
+        "name": "Dify AI",
+        "url": "https://dify.jhsweetheart.com",
+        "icon": "https://api.iconify.design/simple-icons:dify.svg",
+        "desc": "私有化 LLM 编排与知识库中枢",
+        "pulse": true
       }
     ]
   },
@@ -263,6 +270,13 @@
         "icon": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/beszel.png",
         "desc": "轻量级全主机探针大屏",
         "pulse": true
+      },
+      {
+        "name": "Gatus 公网探针",
+        "url": "https://gatus.jhsweetheart.com",
+        "icon": "https://api.iconify.design/mdi:heart-pulse.svg",
+        "desc": "甲骨文 2 号外部独立健康监控",
+        "pulse": true
       }
     ]
   },
@@ -270,6 +284,20 @@
     "name": "实用工具",
     "icon": "wrench",
     "items": [
+      {
+        "name": "n8n 自动化",
+        "url": "https://n8n.jhsweetheart.com",
+        "icon": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/n8n.png",
+        "desc": "私有化工作流与 Webhook 自动化",
+        "pulse": true
+      },
+      {
+        "name": "Headscale",
+        "url": "https://hs.jhsweetheart.com",
+        "icon": "https://api.iconify.design/simple-icons:tailscale.svg",
+        "desc": "私有 Tailscale 控制端与 DERP 中继",
+        "pulse": false
+      },
       {
         "name": "GitHub 脚本库",
         "url": "https://github.com/JoelYang-Y/scripts",

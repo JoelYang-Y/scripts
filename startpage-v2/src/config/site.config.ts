@@ -86,6 +86,14 @@ export const SITE_CONFIG = {
       category: "ai",
       statusDot: true
     },
+    {
+      name: "Dify AI",
+      url: "https://dify.jhsweetheart.com",
+      icon: "/icons/dify.svg",
+      desc: "私有化 LLM 编排与知识库中枢",
+      category: "ai",
+      statusDot: true
+    },
 
     // 2. 内网中枢 (homelab)
     {
@@ -294,8 +302,31 @@ export const SITE_CONFIG = {
       category: "monitor",
       statusDot: true
     },
+    {
+      name: "Gatus 公网探针",
+      url: "https://gatus.jhsweetheart.com",
+      icon: "/icons/gatus.svg",
+      desc: "甲骨文 2 号外部独立健康监控",
+      category: "monitor",
+      statusDot: true
+    },
 
     // 7. 实用工具 (tools)
+    {
+      name: "n8n 自动化",
+      url: "https://n8n.jhsweetheart.com",
+      icon: "/icons/n8n.png",
+      desc: "私有化工作流与 Webhook 自动化",
+      category: "tools",
+      statusDot: true
+    },
+    {
+      name: "Headscale",
+      url: "https://hs.jhsweetheart.com",
+      icon: "/icons/tailscale.svg",
+      desc: "私有 Tailscale 控制端与 DERP 中继",
+      category: "tools"
+    },
     {
       name: "GitHub 脚本库",
       url: "https://github.com/JoelYang-Y/scripts",
