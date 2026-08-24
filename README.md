@@ -1,4 +1,16 @@
-##  NAS Docker 部署中心 (极空间 Z4Pro)
+# 个人通用网络与运维工具脚本库 (JoelYang-Y/scripts)
+
+## 🤖 Hermes Agent 架构重构与部署中心
+
+详见 [`hermes_deployment/README.md`](./hermes_deployment/README.md)，包含完整 Hermes AI Agent 的架构重构与一键还原套件：
+- **记忆与向量库**: Mem0 OSS + NAS Qdrant 向量数据库自动创建与向量批量 Upsert 恢复
+- **技能体系 (Skills)**: 160+ 个技能库全量打包与 Matt Pocock 4 大核心工程规范
+- **自动化守护**: 7 大 Cron 核心定时任务与自动化运维脚本
+- **自动化工具箱**: 一键环境安装 (`setup_environment.sh`)、全量备份导出 (`backup_hermes.py`)、一键灾备还原 (`restore_hermes.py`) 与全链路健康体检 (`health_check.py`)
+
+---
+
+## 📦 NAS Docker 部署中心 (极空间 Z4Pro)
 
 详见 [`nas_docker/README.md`](./nas_docker/README.md)，包含极空间 NAS 上 13 个关键服务的标准 `docker-compose.yml`（逐项注释）与专属部署说明：
 

@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "13992109824b",
+      "name": "Hermes 自动更新检查",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 */6 * * *",
+        "display": "0 */6 * * *"
+      },
+      "prompt": "执行 Hermes 自动版本更新检测与依赖环境扫描",
+      "script": "hermes_update_check.sh",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": true
+    },
+    {
+      "id": "0c61c44aba2f",
+      "name": "Hermes 每日状态推送",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * *",
+        "display": "0 8 * * *"
+      },
+      "prompt": "收集当前网关、Mem0 记忆库、Cron 定时任务与网络链路健康度，生成结构化健康日报推送",
+      "script": "hermes_daily_status.sh",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    },
+    {
+      "id": "9e45d46a3b58",
+      "name": "Hermes 记忆自动整理",
+      "schedule": {
+        "kind": "cron",
+        "expr": "15 */6 * * *",
+        "display": "15 */6 * * *"
+      },
+      "prompt": "检索 Mem0 向量数据库中的记忆条目，自主执行去重、冲突合并与陈旧状态归档，将有效记忆控制在 100-130 条高密度黄金条目内。",
+      "script": null,
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    },
+    {
+      "id": "358837e1dfcb",
+      "name": "Hermes 每周备份到 NAS",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * 0",
+        "display": "0 3 * * 0"
+      },
+      "prompt": "执行 Hermes 核心配置与技能全量冷备份同步至极空间 Z4Pro NAS",
+      "script": "hermes_backup_to_nas.sh",
+      "enabled": true,
+      "deliver": "local",
+      "no_agent": true
+    },
+    {
+      "id": "9d2340c8ead6",
+      "name": "Hermes 本机记忆备份",
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 4 * * 0",
+        "display": "30 4 * * 0"
+      },
+      "prompt": "通过 REST scroll API 导出 Qdrant 向量数据库中的全量记忆集合（包含 dense 向量与 payload），生成带 SHA256 校验的本地快照包",
+      "script": "hermes_backup_local.py",
+      "enabled": true,
+      "deliver": "local",
+      "no_agent": true
+    },
+    {
+      "id": "56447b2bafe4",
+      "name": "每日 AI 前沿资讯早报",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * *",
+        "display": "0 9 * * *"
+      },
+      "prompt": "检索过去 24 小时全球顶尖 AI 研究、模型发布与开源生态突破，生成高价值中英文对照早报。",
+      "script": null,
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    },
+    {
+      "id": "e09e77d4adee",
+      "name": "全网 SSL 证书每周健康巡检",
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 9 * * 1",
+        "display": "30 9 * * 1"
+      },
+      "prompt": "巡检所有自建域名与反代节点的 SSL 证书剩余有效天数，若少于 15 天则发起告警",
+      "script": "ssl_cert_patrol.py",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    }
+  ]
+}

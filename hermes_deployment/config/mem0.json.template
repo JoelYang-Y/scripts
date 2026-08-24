@@ -1,0 +1,30 @@
+{
+  "mode": "oss",
+  "oss": {
+    "vector_store": {
+      "provider": "qdrant",
+      "config": {
+        "host": "10.0.0.3",
+        "port": 6333,
+        "collection_name": "hermes_memories_v2_hybrid",
+        "embedding_model_dims": 512
+      }
+    },
+    "embedder": {
+      "provider": "huggingface",
+      "config": {
+        "model": "BAAI/bge-small-zh-v1.5"
+      }
+    },
+    "llm": {
+      "provider": "openai",
+      "config": {
+        "model": "deepseek-v4-flash",
+        "api_key": "YOUR_DEEPSEEK_API_KEY",
+        "openai_base_url": "https://api.deepseek.com"
+      }
+    }
+  },
+  "user_id": "zhaoyang",
+  "agent_id": "hermes"
+}
