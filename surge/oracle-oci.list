@@ -1,0 +1,17 @@
+# Oracle Cloud / OCI
+# Surge RULE-SET；将策略写在主配置的 RULE-SET 行中。
+# IP-CIDR 为当前已确认地址，仅作辅助匹配；域名规则优先。
+
+DOMAIN-SUFFIX,cloud.oracle.com
+DOMAIN-SUFFIX,oracle.com
+DOMAIN-SUFFIX,oracle.net
+DOMAIN-SUFFIX,oraclecloud.com
+DOMAIN-SUFFIX,oraclecloudapps.com
+DOMAIN-SUFFIX,oraclecorp.com
+DOMAIN-SUFFIX,oraclehosted.com
+DOMAIN-SUFFIX,oracleimg.com
+DOMAIN-SUFFIX,oracleinfinity.io
+DOMAIN-SUFFIX,oraclelicense.com
+
+IP-CIDR,129.146.122.202/32,no-resolve
+IP-CIDR,129.153.89.114/32,no-resolve

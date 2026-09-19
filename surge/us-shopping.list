@@ -1,0 +1,44 @@
+# 美国购物网站
+# Surge RULE-SET；将策略写在主配置的 RULE-SET 行中。
+# IP-CIDR 为当前已确认地址，仅作辅助匹配；域名规则优先。
+
+DOMAIN-SUFFIX,amazon.com
+DOMAIN-SUFFIX,amazonaws.com
+DOMAIN-SUFFIX,autozone.com
+DOMAIN-SUFFIX,bestbuy.com
+DOMAIN-SUFFIX,bhphotovideo.com
+DOMAIN-SUFFIX,bjs.com
+DOMAIN-SUFFIX,carmax.com
+DOMAIN-SUFFIX,carvana.com
+DOMAIN-SUFFIX,chewy.com
+DOMAIN-SUFFIX,costco.com
+DOMAIN-SUFFIX,cvs.com
+DOMAIN-SUFFIX,dickssportinggoods.com
+DOMAIN-SUFFIX,doordash.com
+DOMAIN-SUFFIX,ebay.com
+DOMAIN-SUFFIX,etsy.com
+DOMAIN-SUFFIX,gamestop.com
+DOMAIN-SUFFIX,homedepot.com
+DOMAIN-SUFFIX,instacart.com
+DOMAIN-SUFFIX,kohls.com
+DOMAIN-SUFFIX,lowes.com
+DOMAIN-SUFFIX,macys.com
+DOMAIN-SUFFIX,newegg.com
+DOMAIN-SUFFIX,nike.com
+DOMAIN-SUFFIX,nordstrom.com
+DOMAIN-SUFFIX,officedepot.com
+DOMAIN-SUFFIX,oreillyauto.com
+DOMAIN-SUFFIX,rei.com
+DOMAIN-SUFFIX,sams.com
+DOMAIN-SUFFIX,samsclub.com
+DOMAIN-SUFFIX,sephora.com
+DOMAIN-SUFFIX,shop.app
+DOMAIN-SUFFIX,shopify.com
+DOMAIN-SUFFIX,staples.com
+DOMAIN-SUFFIX,target.com
+DOMAIN-SUFFIX,ulta.com
+DOMAIN-SUFFIX,walgreens.com
+DOMAIN-SUFFIX,walmart.com
+DOMAIN-SUFFIX,walmartimages.com
+DOMAIN-SUFFIX,wayfair.com
+
