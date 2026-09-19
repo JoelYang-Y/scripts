@@ -13,6 +13,7 @@
 - `us-mobile-financial.list`：通信、金融、购物与 Oracle OCI 全部合并规则集
 - `us-shopping.list`：美国常用购物、电商、零售、药房和生活服务网站
 - `oracle-oci.list`：Oracle Cloud / OCI 官方域名及用户 OCI 实例 IP
+- `us-all.list`：以上通信、金融、购物与 Oracle OCI 全部合并且去重后的单一规则集
 
 ## Surge 用法
 
