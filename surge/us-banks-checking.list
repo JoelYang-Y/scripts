@@ -1,0 +1,40 @@
+# 美国银行与支票账户
+# Surge RULE-SET；将策略写在主配置的 RULE-SET 行中。
+# IP-CIDR 为当前 DNS 快照，仅作辅助匹配；域名规则优先。
+
+DOMAIN-SUFFIX,53.com
+DOMAIN-SUFFIX,ally.com
+DOMAIN-SUFFIX,allybank.com
+DOMAIN-SUFFIX,bankofamerica.com
+DOMAIN-SUFFIX,barclaysus.com
+DOMAIN-SUFFIX,bmoharris.com
+DOMAIN-SUFFIX,bofa.com
+DOMAIN-SUFFIX,capitalone.com
+DOMAIN-SUFFIX,capitalone360.com
+DOMAIN-SUFFIX,chase.com
+DOMAIN-SUFFIX,citi.com
+DOMAIN-SUFFIX,citibank.com
+DOMAIN-SUFFIX,citizensbank.com
+DOMAIN-SUFFIX,discover.com
+DOMAIN-SUFFIX,discoverbank.com
+DOMAIN-SUFFIX,huntington.com
+DOMAIN-SUFFIX,jpmorgan.com
+DOMAIN-SUFFIX,key.com
+DOMAIN-SUFFIX,marcus.com
+DOMAIN-SUFFIX,navyfederal.org
+DOMAIN-SUFFIX,pnc.com
+DOMAIN-SUFFIX,regions.com
+DOMAIN-SUFFIX,schwab.com
+DOMAIN-SUFFIX,sofi.com
+DOMAIN-SUFFIX,sofi.org
+DOMAIN-SUFFIX,synchrony.com
+DOMAIN-SUFFIX,td.com
+DOMAIN-SUFFIX,truist.com
+DOMAIN-SUFFIX,usaa.com
+DOMAIN-SUFFIX,usbank.com
+DOMAIN-SUFFIX,wellsfargo.com
+
+IP-CIDR,104.18.38.31/32,no-resolve
+IP-CIDR,172.64.149.225/32,no-resolve
+IP-CIDR,184.31.10.229/32,no-resolve
+IP-CIDR,23.1.106.229/32,no-resolve

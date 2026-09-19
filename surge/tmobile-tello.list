@@ -1,0 +1,38 @@
+# T-Mobile / Tello 与美国移动运营商
+# Surge RULE-SET；将策略写在主配置的 RULE-SET 行中。
+# IP-CIDR 为当前 DNS 快照，仅作辅助匹配；域名规则优先。
+
+DOMAIN-SUFFIX,att.com
+DOMAIN-SUFFIX,attwireless.com
+DOMAIN-SUFFIX,boostinfinite.com
+DOMAIN-SUFFIX,boostmobile.com
+DOMAIN-SUFFIX,consumercellular.com
+DOMAIN-SUFFIX,cricketwireless.com
+DOMAIN-SUFFIX,fi.google.com
+DOMAIN-SUFFIX,googlefi.google.com
+DOMAIN-SUFFIX,h2owireless.com
+DOMAIN-SUFFIX,metrobyt-mobile.com
+DOMAIN-SUFFIX,metropcs.com
+DOMAIN-SUFFIX,mintmobile.com
+DOMAIN-SUFFIX,redpocket.com
+DOMAIN-SUFFIX,simplemobile.com
+DOMAIN-SUFFIX,spectrum.com
+DOMAIN-SUFFIX,straighttalk.com
+DOMAIN-SUFFIX,t-mobile.com
+DOMAIN-SUFFIX,t-mobile.net
+DOMAIN-SUFFIX,t-mobilebusiness.com
+DOMAIN-SUFFIX,tello.com
+DOMAIN-SUFFIX,ting.com
+DOMAIN-SUFFIX,totalwireless.com
+DOMAIN-SUFFIX,tracfone.com
+DOMAIN-SUFFIX,ultramobile.com
+DOMAIN-SUFFIX,uscellular.com
+DOMAIN-SUFFIX,verizon.com
+DOMAIN-SUFFIX,verizonwireless.com
+DOMAIN-SUFFIX,visible.com
+DOMAIN-SUFFIX,walmart.com
+DOMAIN-SUFFIX,xfinitymobile.com
+
+IP-CIDR,104.20.36.195/32,no-resolve
+IP-CIDR,172.66.152.1/32,no-resolve
+IP-CIDR,23.205.249.201/32,no-resolve

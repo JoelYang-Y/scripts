@@ -1,0 +1,37 @@
+# 美国券商与投资账户
+# Surge RULE-SET；将策略写在主配置的 RULE-SET 行中。
+# IP-CIDR 为当前 DNS 快照，仅作辅助匹配；域名规则优先。
+
+DOMAIN-SUFFIX,acorns.com
+DOMAIN-SUFFIX,ally.com
+DOMAIN-SUFFIX,betterment.com
+DOMAIN-SUFFIX,empower.com
+DOMAIN-SUFFIX,etrade.com
+DOMAIN-SUFFIX,fidelity.com
+DOMAIN-SUFFIX,fidelityinvestments.com
+DOMAIN-SUFFIX,ibkr.com
+DOMAIN-SUFFIX,ibkr.com.cn
+DOMAIN-SUFFIX,ibkr.com.hk
+DOMAIN-SUFFIX,ibkr.com.sg
+DOMAIN-SUFFIX,ibkr.eu
+DOMAIN-SUFFIX,interactivebrokers.co.in
+DOMAIN-SUFFIX,interactivebrokers.co.jp
+DOMAIN-SUFFIX,interactivebrokers.co.uk
+DOMAIN-SUFFIX,interactivebrokers.com
+DOMAIN-SUFFIX,interactivebrokers.com.au
+DOMAIN-SUFFIX,m1.com
+DOMAIN-SUFFIX,ml.com
+DOMAIN-SUFFIX,morganstanley.com
+DOMAIN-SUFFIX,public.com
+DOMAIN-SUFFIX,robinhood.com
+DOMAIN-SUFFIX,schwab.com
+DOMAIN-SUFFIX,sofi.com
+DOMAIN-SUFFIX,tastytrade.com
+DOMAIN-SUFFIX,tdameritrade.com
+DOMAIN-SUFFIX,tradestation.com
+DOMAIN-SUFFIX,vanguard.com
+DOMAIN-SUFFIX,wealthfront.com
+DOMAIN-SUFFIX,webull.com
+
+IP-CIDR,63.86.206.59/32,no-resolve
+IP-CIDR,64.190.196.59/32,no-resolve
