@@ -8,7 +8,7 @@
 
 1. **一级域名直达与 Cloudflare DNS 联动**
    - 生产域名：`https://jhsweetheart.com` (一级主域名)
-   - 宿主机：甲骨文云 VPS (`129.146.122.202`)
+   - 宿主机：甲骨文云 VPS (`129.153.89.114`)
    - DNS 体系：Cloudflare DNS 原生 A 记录直连，已清理废弃二级域名并严格隔离搬瓦工与 AT&T 服务器。
 
 2. **内置 Docker 配置代码库知识库 (Docker Hub & Repo)**

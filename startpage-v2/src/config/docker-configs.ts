@@ -334,8 +334,8 @@ export const DOCKER_SERVICES: DockerServiceConfig[] = [
     "categoryLabel": "云端生产节点",
     "desc": "甲骨文云宿主机三位一体生产架构: Nginx 网关 + Vaultwarden 密码库 + Docker Registry 缓存",
     "port": "80 / 443 / 8080 / 5000",
-    "host": "129.146.122.202 (甲骨文 VPS)",
-    "hostIp": "129.146.122.202",
+    "host": "129.153.89.114 (甲骨文 VPS)",
+    "hostIp": "129.153.89.114",
     "envDesc": [
       "实机路径: /opt/vaultwarden/docker-compose.yml",
       "包含 unified-gateway-nginx (80/443), vaultwarden, docker-registry-mirror",

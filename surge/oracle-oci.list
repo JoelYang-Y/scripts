@@ -13,5 +13,4 @@ DOMAIN-SUFFIX,oracleimg.com
 DOMAIN-SUFFIX,oracleinfinity.io
 DOMAIN-SUFFIX,oraclelicense.com
 
-IP-CIDR,129.146.122.202/32,no-resolve
 IP-CIDR,129.153.89.114/32,no-resolve

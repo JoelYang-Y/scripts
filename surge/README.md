@@ -44,6 +44,6 @@ RULE-SET,https://raw.githubusercontent.com/JoelYang-Y/scripts/main/surge/oracle-
 - 未加入大范围 Cloudflare、Akamai、Fastly、AWS 网段，避免误匹配无关网站。
 - `DOMAIN-SUFFIX` 会覆盖同一官方根域名下的登录、接口和支付子域名。
 - 规则集不包含任何账号、密码、Cookie、证书或代理节点信息。
-- Oracle OCI IP-CIDR 仅包含当前用户实例 `129.146.122.202` 和 `129.153.89.114` 的 `/32` 地址。
+- Oracle OCI IP-CIDR 仅包含当前在役实例 `129.153.89.114` 的 `/32` 地址（2026-10-28 起 OCI 仅此一台）。
 
 生成时间：2026-09-19

@@ -203,7 +203,7 @@ import { DOCKER_SERVICES } from '../config/docker-configs';
       name: "Vaultwarden 密码保险库",
       desc: "轻量级 Bitwarden 兼容私有端到端加密密码管理器",
       port: "8080",
-      host: "129.146.122.202 (甲骨文 VPS)",
+      host: "129.153.89.114 (甲骨文 VPS)",
       envDesc: ["SIGNUPS_ALLOWED: false", "WEBSOCKET_ENABLED: true"],
       compose: `version: '3.8'\nservices:\n  vaultwarden:\n    image: vaultwarden/server:latest\n    container_name: vaultwarden\n    restart: always\n    environment:\n      - SIGNUPS_ALLOWED=false\n      - WEBSOCKET_ENABLED=true\n    volumes:\n      - /opt/vaultwarden/data:/data\n    ports:\n      - "127.0.0.1:8080:80"\n`
     }

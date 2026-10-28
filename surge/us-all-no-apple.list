@@ -400,7 +400,6 @@ DOMAIN-SUFFIX,treasury.gov
 DOMAIN-SUFFIX,treasurydirect.gov
 
 IP-CIDR,104.18.38.31/32,no-resolve
-IP-CIDR,129.146.122.202/32,no-resolve
 IP-CIDR,129.153.89.114/32,no-resolve
 IP-CIDR,104.20.36.195/32,no-resolve
 IP-CIDR,13.248.139.42/32,no-resolve

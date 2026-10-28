@@ -91,19 +91,19 @@
   },
   {
     "name": "oracle-unified-gateway",
-    "host": "Oracle VPS (129.146.122.202)",
+    "host": "Oracle VPS (129.153.89.114)",
     "compose": "services:\n  gateway:\n    image: nginx:alpine\n    container_name: unified-gateway-nginx\n    restart: always\n    ports:\n      - \"80:80\"\n      - \"443:443\"\n    volumes:\n      - /opt/vaultwarden/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro\n      - /usr/local/etc/fullchain.pem:/usr/local/etc/fullchain.pem:ro\n      - /usr/local/etc/privkey.pem:/usr/local/etc/privkey.pem:ro\n      - /etc/letsencrypt:/etc/letsencrypt:ro\n      - /opt/startpage:/usr/share/nginx/html/startpage:ro\n",
     "readme": "Oracle Cloud 统一反向代理网关，负责 jhsweetheart.com 与 start.jhsweetheart.com 路由"
   },
   {
     "name": "oracle-vaultwarden",
-    "host": "Oracle VPS (129.146.122.202)",
+    "host": "Oracle VPS (129.153.89.114)",
     "compose": "services:\n  vaultwarden:\n    image: vaultwarden/server:latest\n    container_name: vaultwarden\n    restart: always\n    environment:\n      - WEBSOCKET_ENABLED=true\n    volumes:\n      - /opt/vaultwarden/data:/data\n",
     "readme": "Bitwarden / Vaultwarden 自托管密码库"
   },
   {
     "name": "oracle-docker-registry",
-    "host": "Oracle VPS (129.146.122.202)",
+    "host": "Oracle VPS (129.153.89.114)",
     "compose": "services:\n  registry:\n    image: registry:2\n    container_name: docker-registry-mirror\n    restart: always\n    volumes:\n      - /opt/docker-registry/data:/var/lib/registry\n",
     "readme": "甲骨文私有 Docker 镜像加速与缓存源"
   }
