@@ -8,7 +8,7 @@ set -e
 ORACLE_IP="129.153.89.114"
 ORACLE_PORT="59421"
 ORACLE_USER="root"
-REMOTE_PATH="/usr/share/nginx/html/startpage"
+REMOTE_PATH="/opt/startpage"
 LOCAL_DIR="/Users/macmini/scripts/startpage-v2"
 
 echo "🚀 [1/3] 开始本地静态产物编译构建..."
