@@ -302,14 +302,6 @@ export const SITE_CONFIG = {
       category: "monitor",
       statusDot: true
     },
-    {
-      name: "Gatus 公网探针",
-      url: "https://gatus.jhsweetheart.com",
-      icon: "/icons/gatus.svg",
-      desc: "甲骨文 2 号外部独立健康监控",
-      category: "monitor",
-      statusDot: true
-    },
 
     // 7. 实用工具 (tools)
     {

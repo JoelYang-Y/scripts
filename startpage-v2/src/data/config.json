@@ -270,13 +270,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/beszel.png",
         "desc": "轻量级全主机探针大屏",
         "pulse": true
-      },
-      {
-        "name": "Gatus 公网探针",
-        "url": "https://gatus.jhsweetheart.com",
-        "icon": "https://api.iconify.design/mdi:heart-pulse.svg",
-        "desc": "甲骨文 2 号外部独立健康监控",
-        "pulse": true
       }
     ]
   },
