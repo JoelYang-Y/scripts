@@ -86,14 +86,6 @@ export const SITE_CONFIG = {
       category: "ai",
       statusDot: true
     },
-    {
-      name: "Dify AI",
-      url: "https://dify.jhsweetheart.com",
-      icon: "/icons/dify.svg",
-      desc: "私有化 LLM 编排与知识库中枢",
-      category: "ai",
-      statusDot: true
-    },
 
     // 2. 内网中枢 (homelab)
     {
@@ -138,13 +130,6 @@ export const SITE_CONFIG = {
       desc: "Obsidian 跨端双向同步",
       category: "homelab"
     },
-    {
-      name: "Vaultwarden",
-      url: "https://oracle.jhsweetheart.com",
-      icon: "/icons/bitwarden.png",
-      desc: "私有全端同步密码保险库",
-      category: "homelab"
-    },
 
     // 3. 核心云端 (cloud)
     {
@@ -169,17 +154,10 @@ export const SITE_CONFIG = {
       category: "cloud"
     },
     {
-      name: "VirCS 控制台",
-      url: "https://www.vircs.com/",
-      icon: "/icons/vircs.svg",
-      desc: "纯正美国家宽",
-      category: "cloud"
-    },
-    {
-      name: "甲骨文 s-ui",
-      url: "https://oracle.jhsweetheart.com:18848/jhsweet/",
-      icon: "/icons/oracle.png",
-      desc: "Oracle 核心节点网关管理",
+      name: "nodemach 控制台",
+      url: "https://www.nodemach.com/",
+      icon: "/icons/nodemach.svg",
+      desc: "KVM 云主机与 CN2 GIA 线路",
       category: "cloud"
     },
     {
@@ -304,21 +282,6 @@ export const SITE_CONFIG = {
     },
 
     // 7. 实用工具 (tools)
-    {
-      name: "n8n 自动化",
-      url: "https://n8n.jhsweetheart.com",
-      icon: "/icons/n8n.png",
-      desc: "私有化工作流与 Webhook 自动化",
-      category: "tools",
-      statusDot: true
-    },
-    {
-      name: "Headscale",
-      url: "https://hs.jhsweetheart.com",
-      icon: "/icons/tailscale.svg",
-      desc: "私有 Tailscale 控制端与 DERP 中继",
-      category: "tools"
-    },
     {
       name: "GitHub 脚本库",
       url: "https://github.com/JoelYang-Y/scripts",
