@@ -109,7 +109,7 @@
 hermes_deployment/
 ├── README.md                      # 本 SOP（唯一权威口径）
 ├── config/                        # 配置模板（已与线上结构同步，全部占位符化、无真实密钥）
-│   ├── config.yaml.template       # 主配置：DeepSeek 模型栈 / plugins / memory / skills / approvals / api_server
+│   ├── config.yaml.template       # 主配置：DeepSeek 模型栈 / plugins / memory / skills / approvals（api key 一律留空，走 .env）
 │   ├── env.template               # 环境变量键名清单：DEEPSEEK / MEM0_MODE / TAVILY / TELEGRAM / BROWSER
 │   ├── mem0.json.template         # 记忆连接：qdrant 512 维 / bge-small-zh-v1.5 / deepseek-v4-flash / 检索限额
 │   ├── cron_jobs.json.template            # default 的 10 项 Cron
@@ -121,7 +121,7 @@ hermes_deployment/
     ├── deploy_qdrant.sh           # [步骤2] Qdrant 容器一键拉起（本机模式；接 NAS 时跳过）
     ├── backup_hermes.py           # [工具] tar.gz 全量打包（Qdrant REST 全量 + Skills + Cron + 配置 + manifest）
     ├── restore_hermes.py          # [工具] 一键还原（建集合 / 批量 Upsert / 释放 Skills 与 Cron）
-    └── health_check.py            # [验证] 5 段体检：配置 → Qdrant → Skills → Cron → CLI
+    │   └── health_check.py            # [验证] 5 段体检：配置 → Qdrant → Skills(活跃口径) → Cron(跨 profile) → CLI
 ```
 
 > 📌 **使用纪律**：模板已按 2026-11-11 实测结构重写（模型栈、插件、记忆五要件、Cron 15 项分 profile），可直接用于**全新机器**；但模板中的 `<PLACEHOLDER>` 必须替换，且**任何真实密钥、chat_id、API Server key 都不在模板内**。已运行中的机器不要用模板覆盖现有文件，改前先 `cp` 备份。
@@ -358,7 +358,7 @@ python3 scripts/health_check.py
 python3 scripts/backup_hermes.py --qdrant-host 10.0.0.3 --qdrant-port 6333 --out-dir ~/hermes-backups
 ```
 
-> 🔐 **安全红线**：NAS 备份脚本内含明文 NAS 账号口令。该脚本**只存在于本机 `~/.hermes/scripts/`，严禁提交到公开仓库**；恢复演练时也不得把凭据写进笔记或消息。
+> 🔐 **凭据纪律（2026-11-11 整改）**：`hermes_backup_to_nas.sh` 已不再内嵌口令，改为从 `~/.hermes/.nas_backup.env`（`chmod 600`，含 `NAS_USER/NAS_HOST/NAS_PORT/NAS_PASS/NAS_BASE`）读取；文件缺失或键为空时脚本直接失败退出。该 env 文件**永远不进仓库、不进备份包的可公开副本**，也不得写进笔记或消息。同类规则适用于：`.env`、`mem0.json` 的 `api_key`、`config.yaml` 的 API Server key。
 
 ### 5.2 一键复原
 
@@ -459,6 +459,7 @@ rsync 镜像 → gen_readme.py 重建分类索引 → git commit → git push
 
 - 守护：launchd `ai.hermes.gateway`，`KeepAlive.SuccessfulExit=false`；入口为 **venv 内 `hermes --run-module hermes_cli.stderr_timestamp -- ... gateway run --external-supervisor`**（给日志加时间戳 + 外部监管模式）。**直接改回裸 shim 会被依赖守卫拒载。**
 - 平台状态：`~/.hermes/gateway_state.json` → `platforms.telegram.state`、`platforms.api_server`（本机 `127.0.0.1:864x`）。
+- **API Server 认证 key 只存 `.env` 的 `API_SERVER_KEY`**，`config.yaml` 的 `platforms.api_server.extra.key` 必须留空/删除：代码里 `extra["key"]` **优先级高于**环境变量（`api_server.py` 的 `extra.get("key", _get_scoped_secret("API_SERVER_KEY",""))`），一旦写死就等于把凭据留在配置文件里。
 - 多端入口并行：TUI/CLI、Telegram、HermesPilot（`hermespilot-link` 插件）、Desktop。入口与 Hermes 物理部署位置无关。
 - **会话内禁止重启网关**，须由用户在外部终端执行 `hermes gateway restart`。
 
@@ -485,7 +486,7 @@ rsync 镜像 → gen_readme.py 重建分类索引 → git commit → git push
 | 8 | 网关在线 | `cat ~/.hermes/gateway_state.json` | `telegram: connected`，无 `needs_attention` |
 | 9 | 备份新鲜度 | `ls -1 ~/hermes-backups-local` | 最近一份 < 8 天，共 ≤4 份 |
 
-> 口径提示：`health_check.py` 的技能计数是 `find -name SKILL.md` 全量结果（含 `.archive/`，故显示 187）；"活跃技能"以 §6.2 的 107 为准。Cron 一项该脚本只读 default 的 `jobs.json`（10 项），全部 15 项需按 `-p <profile>` 逐个核。
+> 口径说明：`health_check.py` 已按活跃口径统计 —— 技能数**排除 `.archive/`**（输出形如「活跃技能数 107（另有归档 80）| 分类目录 37 个，其中有内容 28 个」），Cron 一项**跨 default 与各 profile 汇总**（输出形如「合计任务数 15 | 分布: default 10 / mail-keeper 1 / memory-keeper 2 / skill-keeper 2」）。若某机器上数字低于此，先查是否漏装 profile 任务。
 
 ---
 

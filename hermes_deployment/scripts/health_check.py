@@ -118,12 +118,33 @@ def main():
     skills_dir = os.path.join(HERMES_DIR, "skills")
     if os.path.exists(skills_dir):
         all_skills = []
+        archived_skills = 0
         for root, dirs, files in os.walk(skills_dir):
+            # 跳过 .archive / .curator_backups / .hub 等隐藏目录：
+            # 归档技能不属于"活跃技能"，混算会虚高数量（旧口径 187 的成因）。
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
             if "SKILL.md" in files:
                 all_skills.append(os.path.basename(root))
+        archive_dir = os.path.join(skills_dir, ".archive")
+        if os.path.isdir(archive_dir):
+            for _root, _dirs, _files in os.walk(archive_dir):
+                if "SKILL.md" in _files:
+                    archived_skills += 1
         total_skills = len(all_skills)
+        categories = [
+            d for d in os.listdir(skills_dir)
+            if not d.startswith(".") and os.path.isdir(os.path.join(skills_dir, d))
+        ]
+        filled = [
+            d for d in categories
+            if any(
+                "SKILL.md" in files
+                for _r, _d, files in os.walk(os.path.join(skills_dir, d))
+            )
+        ]
         report["passed"] += 1
-        print(f"  {check_mark(True)} Skills 根目录存在，已加载技能数: {total_skills}")
+        print(f"  {check_mark(True)} Skills 根目录存在，活跃技能数: {total_skills}"
+              f"（另有归档 {archived_skills}）| 分类目录 {len(categories)} 个，其中有内容 {len(filled)} 个")
 
         pocock_skills = [
             "pocock-grilling",
@@ -141,24 +162,47 @@ def main():
         report["failed"] += 1
         print(f"  {check_mark(False)} Skills 根目录不存在: {skills_dir}")
 
-    # 4. 检查 Cron 定时任务调度器
+    # 4. 检查 Cron 定时任务调度器（default + 各 profile 全量统计）
     print(f"\n{BLUE}[4/5] 检查 Cron 定时任务调度器...{RESET}")
-    cron_file = os.path.join(HERMES_DIR, "cron", "jobs.json")
-    if os.path.exists(cron_file):
+    cron_sources = [("default", os.path.join(HERMES_DIR, "cron", "jobs.json"))]
+    profiles_dir = os.path.join(HERMES_DIR, "profiles")
+    if os.path.isdir(profiles_dir):
+        for pname in sorted(os.listdir(profiles_dir)):
+            p_jobs = os.path.join(profiles_dir, pname, "cron", "jobs.json")
+            if os.path.exists(p_jobs):
+                cron_sources.append((pname, p_jobs))
+
+    total_jobs = 0
+    enabled_jobs = 0
+    read_errors = []
+    breakdown = []
+    for pname, cron_file in cron_sources:
         try:
             with open(cron_file) as f:
                 cdata = json.load(f)
             jobs = cdata.get("jobs", [])
-            report["passed"] += 1
-            print(f"  {check_mark(True)} Cron 任务配置文件存在，已注册任务数: {len(jobs)}")
-            for j in jobs:
-                print(f"    - [{j.get('id')}] {j.get('name')} | 周期: {j.get('schedule', {}).get('display')} | 启用: {j.get('enabled')}")
         except Exception as e:
-            report["failed"] += 1
-            print(f"  {check_mark(False)} 读取 jobs.json 失败: {e}")
+            read_errors.append(f"{pname}: {e}")
+            continue
+        if not jobs:
+            continue
+        total_jobs += len(jobs)
+        enabled_jobs += sum(1 for j in jobs if j.get("enabled"))
+        breakdown.append(f"{pname} {len(jobs)}")
+        print(f"  {check_mark(True)} [{pname}] 任务数: {len(jobs)}")
+        for j in jobs:
+            state = "启用" if j.get("enabled") else "停用"
+            print(f"    - [{j.get('id')}] {j.get('name')} | 周期: {j.get('schedule', {}).get('display')} | {state}")
+
+    if total_jobs:
+        report["passed"] += 1
+        print(f"  合计任务数: {total_jobs}（启用 {enabled_jobs}）| 分布: {' / '.join(breakdown)}")
+    elif read_errors:
+        report["failed"] += 1
+        print(f"  {check_mark(False)} 读取 Cron 配置失败: {'; '.join(read_errors)}")
     else:
         report["warnings"] += 1
-        print(f"  {check_mark(None)} Cron jobs.json 不存在")
+        print(f"  {check_mark(None)} 未发现任何 Cron jobs.json")
 
     # 5. 检查 Hermes CLI 可用性
     print(f"\n{BLUE}[5/5] 检查 Hermes CLI 执行环境...{RESET}")
