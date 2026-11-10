@@ -1,25 +1,32 @@
 # ==============================================================================
-# Hermes Agent 主配置文件模板 (config.yaml)
-# 路径: ~/.hermes/config.yaml
+# Hermes Agent 主配置模板 (config.yaml)
+# 基线：2026-11-11 实测（Hermes v0.23.0 / 单运行时 + 5 profile 分身）
+# 路径：~/.hermes/config.yaml（profile 级：~/.hermes/profiles/<name>/config.yaml）
+#
+# 使用方式：
+#   1) 复制为 ~/.hermes/config.yaml
+#   2) 把所有 <PLACEHOLDER> 换成真实值（密钥放 .env，不要写进本文件）
+#   3) 本模板只保留"结构必需项"，其余键由 Hermes 首次启动自动补全
+# 纪律：本文件可进公开仓库；任何 api_key / token / chat_id 一律不得写入。
 # ==============================================================================
 
-# 1. 核心模型配置
+# 1. 模型栈（当前唯一主模型：DeepSeek）
 model:
-  default: google/gemini-3.7-flash
-  provider: vertex
-  base_url: ''
+  default: deepseek-flash
+  provider: deepseek
+  base_url: https://api.deepseek.com
+  api_mode: chat_completions
 
-fallback_providers:
-  - provider: vertex
-    model: google/gemini-3.7-flash
-  - provider: deepseek
-    model: deepseek-chat
+# Vertex AI 已于 2026-11-08 停用。需回滚时取消下面注释：
+# fallback_providers:
+#   - provider: vertex
+#     model: google/gemini-3.8-flash
+fallback_providers: []
 
-# 2. 默认工具集加载
 toolsets:
   - hermes-cli
 
-# 3. Agent 执行引擎策略
+# 2. Agent 执行引擎
 agent:
   max_turns: 150
   gateway_timeout: 1800
@@ -30,42 +37,122 @@ agent:
   parallel_tool_call_guidance: true
   environment_probe: true
   coding_context: auto
+  verify_on_stop: false
   clarify_timeout: 600
+  gateway_timeout_warning: 900
   gateway_notify_interval: 600
   gateway_auto_continue_freshness: 3600
   image_input_mode: auto
-  disabled_toolsets: []
+  disabled_toolsets: []          # 分身按最小权限收紧，口径见 SOP §3
   verbose: false
-  reasoning_effort: high
+  reasoning_effort: medium
 
-# 4. 终端执行环境
-terminal:
-  backend: local
-  cwd: .
-  timeout: 180
-  auto_source_bashrc: true
-  persistent_shell: true
-  lifetime_seconds: 300
-
-# 5. 联网搜索与抓取
-web:
-  backend: tavily
-  search_backend: ''
-  extract_backend: ''
-  use_gateway: false
-
-# 6. 上下文压缩与剪枝 (保障超长对话不超 Token 限制)
+# 3. 上下文压缩（长会话不爆 token）
+context:
+  engine: compressor
 compression:
   enabled: true
   threshold: 0.5
   target_ratio: 0.2
   protect_last_n: 20
-  hygiene_hard_message_limit: 400
   protect_first_n: 3
+  hygiene_hard_message_limit: 400
   abort_on_summary_failure: false
   in_place: false
 
-# 7. 辅助小模型路由 (Auxiliary Routing)
+# 4. 记忆系统：Mem0 OSS 自建（连接细节在 mem0.json，本段只开关与限额）
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  write_approval: true           # 记忆写入需人工确认
+  provider: 'mem0'               # ⚠️ hermes update 后会变成 ''，升级后必须复核
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  nudge_interval: 0
+  flush_min_turns: 6
+
+# 5. 技能库：一份物理库 + external_dirs 只读挂载（见 SOP §6.2）
+skills:
+  external_dirs: []              # 例：- /Users/<USER>/.hermes/skills
+  template_vars: true
+  inline_shell: false
+  inline_shell_timeout: 10
+  guard_agent_created: true
+  write_approval: false
+  creation_nudge_interval: 15
+
+curator:
+  enabled: true
+  interval_hours: 168
+  min_idle_hours: 2
+  stale_after_days: 14
+  archive_after_days: 30
+  consolidate: false
+  prune_builtins: true
+  backup:
+    enabled: true
+    keep: 5
+
+# 6. 插件（allow_lazy_installs: false 时不会自动拉取，必须显式安装）
+plugins:
+  enabled:
+    - mem0
+    - homeassistant
+    - hermespilot-link
+  entries:
+    hermespilot-link:
+      allow_tool_override: false
+
+# 7. 审批与安全
+approvals:
+  mode: manual
+  timeout: 300
+  cron_mode: deny                # Cron 内不弹审批 → 脚本必须自幂等
+  mcp_reload_confirm: true
+  destructive_slash_confirm: false
+security:
+  allow_private_urls: false
+  redact_secrets: true
+  allow_lazy_installs: false
+  acked_advisories: []
+  website_blocklist:
+    enabled: false
+    domains: []
+    shared_files: []
+
+# 8. Cron 调度（任务定义在各 profile 的 cron/jobs.json）
+cron:
+  provider: ""
+  allow_agent_scheduling: false  # Agent 不能自行新增任务
+  max_parallel_jobs: 1
+  wrap_response: true
+  chronos:
+    portal_url: https://portal.nousresearch.com
+    callback_url: ""
+    expected_audience: ""
+    nas_jwks_url: ""
+
+# 9. 子代理委派
+delegation:
+  model: ""
+  provider: ""
+  base_url: ""
+  api_key: ""
+  api_mode: ""
+  reasoning_effort: ""
+  inherit_mcp_toolsets: true
+  max_iterations: 250
+  child_timeout_seconds: 600
+  max_concurrent_children: 2
+  max_spawn_depth: 1
+  orchestrator_enabled: true
+  subagent_auto_approve: false
+  default_toolsets:
+    - terminal
+    - file
+    - web
+
+# 10. 辅助小模型路由（auto = 跟随主模型能力探测）
 auxiliary:
   vision:
     provider: auto
@@ -76,8 +163,8 @@ auxiliary:
     model: ''
     timeout: 360
   compression:
-    provider: vertex
-    model: google/gemini-3.1-flash-lite
+    provider: auto
+    model: ''
     timeout: 120
   approval:
     provider: auto
@@ -92,57 +179,71 @@ auxiliary:
     model: ''
     timeout: 600
 
-# 8. 记忆系统配置 (Mem0 OSS 独立自建)
-memory:
-  memory_enabled: true
-  user_profile_enabled: true
-  write_approval: true
-  memory_char_limit: 2200
-  user_char_limit: 1375
-  nudge_interval: 0
-  provider: mem0
-  flush_min_turns: 6
+# 11. 终端与文件工具
+terminal:
+  backend: local
+  cwd: .
+  timeout: 180
+  auto_source_bashrc: true
+  persistent_shell: true
+  lifetime_seconds: 300
+file_read_max_chars: 100000
+tool_output:
+  max_bytes: 50000
+  max_lines: 2000
+  max_line_length: 2000
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: false
+  warn_after:
+    exact_failure: 2
+    same_tool_failure: 3
+    idempotent_no_progress: 2
 
-# 9. 智能体任务委派 (Delegation / Subagents)
-delegation:
-  max_iterations: 250
-  child_timeout_seconds: 600
-  max_concurrent_children: 10
-  max_spawn_depth: 1
-  orchestrator_enabled: true
-  subagent_auto_approve: false
-  default_toolsets:
-    - terminal
-    - file
-    - web
-
-# 10. 技能管理与自动化策展 (Curator)
-skills:
-  template_vars: true
-  inline_shell: false
-  guard_agent_created: false
-  write_approval: false
-
-curator:
+# 12. 联网检索 / 浏览器 / 快照
+web:
+  backend: tavily
+  use_gateway: false
+browser:
+  cloud_provider: local
+  use_gateway: false
+  dialog_timeout_s: 300
+  executable_path: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+checkpoints:
   enabled: true
-  interval_hours: 168
-  min_idle_hours: 2
-  stale_after_days: 30
-  archive_after_days: 90
-  consolidate: false
-  prune_builtins: true
-  backup:
-    enabled: true
-    keep: 5
+  max_snapshots: 50
+  max_total_size_mb: 500
+  retention_days: 7
 
-# 11. 语音配置 (TTS / STT)
+# 13. 语音
 tts:
   provider: edge
   edge:
     voice: zh-CN-XiaoxiaoNeural
-
 stt:
   enabled: true
   provider: local
   local:
     model: base
+
+# 14. 多端入口
+timezone: Asia/Shanghai
+telegram:
+  require_mention: true
+  exclusive_bot_mentions: true
+  reactions: false
+# 私聊投递目标：真实会话 ID 只留本机，勿写入仓库
+TELEGRAM_HOME_CHANNEL: "<TELEGRAM_CHAT_ID>"
+
+platforms:
+  api_server:
+    enabled: true
+    extra:
+      host: 127.0.0.1            # 仅本机回环，勿对外暴露
+      port: 8642
+      key: "<API_SERVER_KEY>"    # 随机长串；真实值只留本机
+
+# 15. 代码执行
+code_execution:
+  mode: project
+  timeout: 300

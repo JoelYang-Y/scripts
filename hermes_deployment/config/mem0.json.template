@@ -1,4 +1,5 @@
 {
+  "_doc": "Mem0 OSS 记忆库连接配置。路径：~/.hermes/mem0.json，每个 profile 各一份。新建 profile 后用 ~/.hermes/scripts/profile_join_shared_memory.py 对齐身份三键（collection_name/user_id/agent_id），其余键保留本 profile 取值。api_key 请填入真实 DeepSeek Key，且本文件不得入库。",
   "mode": "oss",
   "oss": {
     "vector_store": {
@@ -20,11 +21,16 @@
       "provider": "openai",
       "config": {
         "model": "deepseek-v4-flash",
-        "api_key": "YOUR_DEEPSEEK_API_KEY",
+        "api_key": "<DEEPSEEK_KEY>",
         "openai_base_url": "https://api.deepseek.com"
       }
     }
   },
   "user_id": "zhaoyang",
-  "agent_id": "hermes"
+  "agent_id": "hermes",
+  "search_top_k": 5,
+  "search_max_top_k": 10,
+  "search_max_chars": 12000,
+  "search_item_max_chars": 2000,
+  "prefetch_max_chars": 6000
 }

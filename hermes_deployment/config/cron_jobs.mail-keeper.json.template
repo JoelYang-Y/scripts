@@ -1,0 +1,16 @@
+{
+  "_doc": "mail-keeper profile 的 Cron 定义，落位：~/.hermes/profiles/mail-keeper/cron/jobs.json（共 1 项）。邮件账号以占位符表示，真实账号只留本机。",
+  "version": 1,
+  "jobs": [
+    {
+      "id": "6d013fcf1dfb",
+      "name": "邮件巡检",
+      "schedule": { "kind": "every", "expr": "30m", "display": "every 30m" },
+      "prompt": "执行一次邮件巡检（只读）。账号：用 mail 类 MCP 工具，Gmail account_name=\"<GMAIL_ACCOUNT>\"、QQ account_name=\"<QQ_ACCOUNT>\"。步骤：1) 各读 INBOX 最近 20 封的元数据，不取正文；2) 对照上一轮输出，找出新增且未推送过的邮件，已推送不重复报；3) 仅对候选邮件取正文，必须显式 mark_as_read=false，禁止改变已读状态；4) 分级输出。分级：P0 立即报（账号安全告警、支付/账单异常、法务合同、带明确截止日期的对方直发、家人或上级提问）；P1（需回复但无硬期限、供应商变更、会议改期取消）；不报（营销、订阅资讯、自动回执、纯通知）。降级：自己操作触发的通知不报。只起草不发送。",
+      "script": null,
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    }
+  ]
+}

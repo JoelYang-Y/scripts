@@ -1,0 +1,26 @@
+{
+  "_doc": "memory-keeper profile 的 Cron 定义，落位：~/.hermes/profiles/memory-keeper/cron/jobs.json（共 2 项）。脚本在 ~/.hermes/scripts/。",
+  "version": 1,
+  "jobs": [
+    {
+      "id": "40487d7b97c3",
+      "name": "记忆托管·每小时增量提取",
+      "schedule": { "kind": "cron", "expr": "0 * * * *", "display": "0 * * * *" },
+      "prompt": "你是 memory-keeper（记忆管家）。提取脚本已按水位增量导出各 profile 的非 cron 会话消息作为素材，注入在本条 prompt 之前。唯一任务：从素材中提炼值得长期记忆的事实，写入主记忆库（mem0 OSS / Qdrant hermes_memories_v2_hybrid / user_id=zhaoyang）。所有 profile 共享读取该库，写入必须干净、精炼、无重复：单轮最多 3 条，可以为 0 条；只写用户偏好、环境事实、关键决策、踩过的坑，不写助手过程与临时状态；写入前先 mem0_search 查重；严禁明文密钥、密码、验证码。",
+      "script": "hermes_memory_extract.py",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    },
+    {
+      "id": "617d290978c6",
+      "name": "每日记忆库整理（分级）",
+      "schedule": { "kind": "cron", "expr": "0 2 * * *", "display": "0 2 * * *" },
+      "prompt": "你是 memory-keeper 的记忆库整理任务。扫描脚本已枚举主库并按等级分组，结果注入在本条 prompt 之前（总览 / L4 碎片 / L2-en 英文 / L3 超期 / L1 核心）。只操作 mem0 主库。分级动作：L1 核心（身份、偏好、红线、安全边界、架构决策、运维坑）永不删除，只可合并同类；L2 中文事实保留，同主题可合并；L2-en 英文事实中文化后用 mem0_update 原位替换（保持原 ID，不新增）；L3 事件保留，逾 30 天合并为摘要；L4 碎片必须逐条判断才删，单轮删除上限 15 条。删除前先落盘全量快照，目标总量不超过上限的 60%。",
+      "script": "mem0_tidy_scan.py",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    }
+  ]
+}

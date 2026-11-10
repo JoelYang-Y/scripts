@@ -1,0 +1,26 @@
+{
+  "_doc": "skill-keeper profile 的 Cron 定义，落位：~/.hermes/profiles/skill-keeper/cron/jobs.json（共 2 项）。脚本在 ~/.hermes/scripts/ 与 profile 的 scripts/ 下。",
+  "version": 1,
+  "jobs": [
+    {
+      "id": "f51267133b78",
+      "name": "每日会话沉淀 Skill",
+      "schedule": { "kind": "cron", "expr": "0 4 * * *", "display": "0 4 * * *" },
+      "prompt": "你是 Skill 管家，本次为无人值守的每日沉淀任务。目标：从其他 Bot 最近 24 小时会话中，把已验证、可复用的操作规程与方法论沉淀成 Skill。扫描范围：default、server-keeper、mail-keeper、memory-keeper（排除 skill-keeper 自身，跳过 cron/oneshot 的重复噪音会话）。只收：实际跑通的步骤、命令与参数组合、踩过的坑、用户纠正过的偏好、先失败后修好的流程。投递前给四要素：触发条件、关键步骤与参数、验证方式、失败停止条件。只落实测跑通的内容，不落推测。",
+      "script": null,
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": false
+    },
+    {
+      "id": "b8b8e2ef61f8",
+      "name": "每日技能库同步 GitHub",
+      "schedule": { "kind": "cron", "expr": "30 23 * * *", "display": "30 23 * * *" },
+      "prompt": "no_agent 脚本任务：技能库镜像 → 重建分类索引 → 提交 → 推送，含远端 HEAD 校验；stdout 直接投递。无变更时仅输出“无变更”一行。",
+      "script": "sync-skills-github.sh",
+      "enabled": true,
+      "deliver": "origin",
+      "no_agent": true
+    }
+  ]
+}
