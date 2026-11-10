@@ -1,0 +1,950 @@
+{
+  "nas": {
+    "docker": {
+      "server": "26.1.4",
+      "client": "26.1.4"
+    },
+    "host": "Linux Z4Pro-Z66F 5.19.17-z4pro-generic #3 SMP PREEMPT_DYNAMIC Wed Sep 2 14:17:46 CST 2026 x86_64 x86_64 x86_64 GNU/Linux\nPRETTY_NAME=\"zos\"\nVERSION_ID=\"zos\"",
+    "containers": [
+      {
+        "name": "beszel-agent",
+        "image": "docker.1ms.run/henrygd/beszel-agent:latest",
+        "created": "2026-08-15T14:24:09",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "host",
+        "ports": [],
+        "mounts": [
+          [
+            "/data_s002/data/udata/real/zdocker/volumes/13329c30e62937f7296ef3bd174cfed6d153501e56361ac10a665607b2d7b33e/_data",
+            "/var/lib/beszel-agent",
+            true
+          ],
+          [
+            "/var/run/docker.sock",
+            "/var/run/docker.sock",
+            false
+          ]
+        ],
+        "env_keys": [
+          "KEY",
+          "PATH",
+          "PORT",
+          "TZ"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "beszel",
+        "compose_service": "beszel-agent",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/beszel",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/beszel/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "beszel-hub",
+        "image": "docker.1ms.run/henrygd/beszel:latest",
+        "created": "2026-08-15T14:14:07",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "beszel_default",
+        "ports": [
+          "0.0.0.0:8095->8090/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/beszel/data",
+            "/beszel_data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "PATH",
+          "TZ"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "beszel",
+        "compose_service": "beszel-hub",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/beszel",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/beszel/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "homelable-backend",
+        "image": "ghcr.io/pouzor/homelable-backend:latest",
+        "created": "2026-08-16T11:24:10",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "homelable_default",
+        "ports": [],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/data",
+            "/app/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "AUTH_PASSWORD_HASH",
+          "AUTH_USERNAME",
+          "DATABASE_URL",
+          "GPG_KEY",
+          "PATH",
+          "PYTHON_SHA256",
+          "PYTHON_VERSION",
+          "SCANNER_RANGES",
+          "SECRET_KEY",
+          "STATUS_CHECKER_INTERVAL"
+        ],
+        "devices": null,
+        "cap_add": [
+          "NET_ADMIN",
+          "NET_RAW"
+        ],
+        "compose_project": "homelable",
+        "compose_service": "backend",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "homelable-frontend",
+        "image": "ghcr.io/pouzor/homelable-frontend:latest",
+        "created": "2026-08-16T11:24:10",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "homelable_default",
+        "ports": [
+          "0.0.0.0:3003->80/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/html",
+            "/usr/share/nginx/html",
+            true
+          ]
+        ],
+        "env_keys": [
+          "ACME_VERSION",
+          "BACKEND_URL",
+          "DYNPKG_RELEASE",
+          "NGINX_VERSION",
+          "NJS_RELEASE",
+          "NJS_VERSION",
+          "PATH",
+          "PKG_RELEASE"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "homelable",
+        "compose_service": "frontend",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/homelable/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "qdrant-mem0",
+        "image": "qdrant/qdrant:latest",
+        "created": "2026-08-09T09:55:41",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "mem0_default",
+        "ports": [
+          "0.0.0.0:6333->6333/tcp",
+          "0.0.0.0:6334->6334/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/hermesmemory/qdrant_data",
+            "/qdrant/storage",
+            true
+          ]
+        ],
+        "env_keys": [
+          "DIR",
+          "PATH",
+          "RUN_MODE",
+          "TZ"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "mem0",
+        "compose_service": "qdrant",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/hermesmemory",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/hermesmemory/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "metatube",
+        "image": "ghcr.io/metatube-community/metatube-server:latest",
+        "created": "2026-07-05T14:46:12",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "metatube_default",
+        "ports": [
+          "0.0.0.0:8081->8080/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/metatube/data",
+            "/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "DB_AUTO_MIGRATE",
+          "DB_MAX_IDLE_CONNS",
+          "DB_MAX_OPEN_CONNS",
+          "DB_PREPARED_STMT",
+          "DSN",
+          "GIN_MODE",
+          "HTTPS_PROXY",
+          "HTTP_PROXY",
+          "PATH",
+          "PORT",
+          "REQUEST_TIMEOUT",
+          "TOKEN"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "metatube",
+        "compose_service": "metatube",
+        "working_dir": "/tmp/zfsv3/sata12/18332733294/data/docker/metatube",
+        "config_files": "/tmp/zfsv3/sata12/18332733294/data/docker/metatube/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "openspeedtest",
+        "image": "docker.1ms.run/library/nginx:alpine",
+        "created": "2026-08-15T13:18:08",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "openspeedtest_default",
+        "ports": [
+          "0.0.0.0:6680->3000/tcp",
+          "0.0.0.0:3004->3000/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/openspeedtest/conf/default.conf",
+            "/etc/nginx/conf.d/default.conf",
+            false
+          ],
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/openspeedtest/www",
+            "/usr/share/nginx/html",
+            false
+          ]
+        ],
+        "env_keys": [
+          "ACME_VERSION",
+          "DYNPKG_RELEASE",
+          "NGINX_VERSION",
+          "NJS_RELEASE",
+          "NJS_VERSION",
+          "PATH",
+          "PKG_RELEASE",
+          "TZ"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "openspeedtest",
+        "compose_service": "openspeedtest",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/openspeedtest",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/openspeedtest/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "paopaodns",
+        "image": "sliamb/paopaodns:latest",
+        "created": "2026-06-16T18:39:40",
+        "restart": "always",
+        "privileged": false,
+        "network": "paopaodns_default",
+        "ports": [
+          "0.0.0.0:5335->53/tcp",
+          "0.0.0.0:5335->53/udp",
+          "0.0.0.0:5304->5304/tcp",
+          "0.0.0.0:5304->5304/udp",
+          "0.0.0.0:7889->7889/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/PaoPaoDNS",
+            "/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "ADDINFO",
+          "AUTO_FORWARD",
+          "AUTO_FORWARD_CHECK",
+          "CNAUTO",
+          "CNFALL",
+          "CN_TRACKER",
+          "CUSTOM_FORWARD",
+          "CUSTOM_FORWARD_TTL",
+          "DEVLOG",
+          "DNSPORT",
+          "DNS_SERVERNAME",
+          "EXPIRED_FLUSH",
+          "HTTP_FILE",
+          "IPV6",
+          "PATH",
+          "QUERY_TIME",
+          "RULES_TTL",
+          "SERVER_IP",
+          "SHUFFLE",
+          "SOCKS5",
+          "TZ",
+          "UPDATE",
+          "USE_HOSTS",
+          "USE_MARK_DATA"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "paopaodns",
+        "compose_service": "paopaodns",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/PaoPaoDNS",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/PaoPaoDNS/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "homelab-gateway-nginx",
+        "image": "docker.1ms.run/nginx:alpine",
+        "created": "2026-08-17T09:29:22",
+        "restart": "always",
+        "privileged": false,
+        "network": "host",
+        "ports": [],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/unified-gateway/conf.d",
+            "/etc/nginx/conf.d",
+            false
+          ],
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/unified-gateway/ssl",
+            "/etc/nginx/ssl",
+            false
+          ]
+        ],
+        "env_keys": [
+          "ACME_VERSION",
+          "DYNPKG_RELEASE",
+          "NGINX_VERSION",
+          "NJS_RELEASE",
+          "NJS_VERSION",
+          "PATH",
+          "PKG_RELEASE"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "unified-gateway",
+        "compose_service": "homelab-gateway",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/unified-gateway",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/unified-gateway/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "uptime-kuma",
+        "image": "docker.1ms.run/louislam/uptime-kuma:latest",
+        "created": "2026-08-15T14:14:04",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "uptime-kuma_default",
+        "ports": [
+          "0.0.0.0:3005->3001/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/nvme14/18332733294/data/Docker/uptime-kuma/data",
+            "/app/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "NODE_VERSION",
+          "PATH",
+          "TZ",
+          "UPTIME_KUMA_IS_CONTAINER",
+          "YARN_VERSION"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "uptime-kuma",
+        "compose_service": "uptime-kuma",
+        "working_dir": "/tmp/zfsv3/nvme14/18332733294/data/Docker/uptime-kuma",
+        "config_files": "/tmp/zfsv3/nvme14/18332733294/data/Docker/uptime-kuma/docker-compose.yml",
+        "healthcheck": true
+      },
+      {
+        "name": "chinesesubfinder",
+        "image": "allanpk716/chinesesubfinder:latest",
+        "created": "2026-04-29T12:41:10",
+        "restart": "always",
+        "privileged": false,
+        "network": "host",
+        "ports": [],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media",
+            "/media",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/csf/config",
+            "/config",
+            true
+          ]
+        ],
+        "env_keys": [
+          "PATH",
+          "PERMS",
+          "PGID",
+          "PS1",
+          "PUID",
+          "TZ",
+          "UMASK"
+        ],
+        "devices": [],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "deluan_navidrome",
+        "image": "deluan/navidrome:latest",
+        "created": "2025-06-12T12:33:20",
+        "restart": "always",
+        "privileged": false,
+        "network": "bridge",
+        "ports": [
+          "0.0.0.0:4533->4533/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/navidrome/data",
+            "/data",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media/music",
+            "/music",
+            true
+          ]
+        ],
+        "env_keys": [
+          "GODEBUG",
+          "ND_CONFIGFILE",
+          "ND_DATAFOLDER",
+          "ND_MUSICFOLDER",
+          "ND_PORT",
+          "PATH"
+        ],
+        "devices": [],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "embyserver",
+        "image": "docker.1ms.run/amilys/embyserver:latest",
+        "created": "2026-07-22T11:57:04",
+        "restart": "always",
+        "privileged": true,
+        "network": "host",
+        "ports": [
+          "0.0.0.0:->1900/udp",
+          "0.0.0.0:->7359/udp",
+          "0.0.0.0:->8096/tcp",
+          "0.0.0.0:->8920/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/emby/config",
+            "/config",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media",
+            "/media",
+            true
+          ]
+        ],
+        "env_keys": [
+          "AMDGPU_IDS",
+          "FONTCONFIG_PATH",
+          "GID",
+          "GIDLIST",
+          "HOME",
+          "IGNORE_VAAPI_ENABLED_FLAG",
+          "LANG",
+          "LD_LIBRARY_PATH",
+          "LIBVA_DRIVERS_PATH",
+          "NEOReadDebugKeys",
+          "NVIDIA_DRIVER_CAPABILITIES",
+          "NVIDIA_VISIBLE_DEVICES",
+          "OCL_ICD_VENDORS",
+          "OverrideGpuAddressSpace",
+          "PATH",
+          "PCI_IDS_PATH",
+          "PGID",
+          "PUID",
+          "SSL_CERT_FILE",
+          "UID",
+          "UMASK",
+          "XDG_CACHE_HOME"
+        ],
+        "devices": [
+          {
+            "PathOnHost": "/dev/dri/renderD128",
+            "PathInContainer": "/dev/dri/renderD128",
+            "CgroupPermissions": "rwm"
+          }
+        ],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "moviepilot-v2",
+        "image": "docker.1ms.run/jxxghp/moviepilot-v2:latest",
+        "created": "2026-04-29T12:43:33",
+        "restart": "always",
+        "privileged": true,
+        "network": "host",
+        "ports": [
+          "0.0.0.0:->3000/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media",
+            "/media",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/moviepilot/core",
+            "/moviepilot/.cache/ms-playwright",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/moviepilot/config",
+            "/config",
+            true
+          ]
+        ],
+        "env_keys": [
+          "CONFIG_DIR",
+          "DISPLAY",
+          "GITHUB_PROXY",
+          "GPG_KEY",
+          "HOME",
+          "LANG",
+          "LD_PRELOAD",
+          "MOVIEPILOT_AUTO_UPDATE",
+          "PATH",
+          "PGID",
+          "PUID",
+          "PYTHON_SHA256",
+          "PYTHON_VERSION",
+          "TERM",
+          "TZ",
+          "UMASK",
+          "VENV_PATH"
+        ],
+        "devices": [],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "qbittorrent",
+        "image": "johngong/qbittorrent:4.6.7-4.6.7.10",
+        "created": "2026-04-29T12:39:39",
+        "restart": "always",
+        "privileged": true,
+        "network": "host",
+        "ports": [
+          "0.0.0.0:->6881/tcp",
+          "0.0.0.0:->6881/udp",
+          "0.0.0.0:->8989/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media/download",
+            "/Downloads",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/qb/config",
+            "/config",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media",
+            "/media",
+            true
+          ]
+        ],
+        "env_keys": [
+          "ENABLE_CHOWN_DOWNLOADS",
+          "ENABLE_CHOWN_R_DOWNLOADS",
+          "GID",
+          "PATH",
+          "QB_DOWNLOADS_DIRECTORY",
+          "QB_EE_BIN",
+          "QB_TRACKERS_LIST_URL",
+          "QB_TRACKERS_UPDATE_AUTO",
+          "QB_WEBUI_PORT",
+          "S6_CMD_WAIT_FOR_SERVICES_MAXTIME",
+          "TZ",
+          "UID",
+          "UMASK"
+        ],
+        "devices": [],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "syncthing",
+        "image": "syncthing/syncthing:latest",
+        "created": "2026-08-11T17:14:32",
+        "restart": "unless-stopped",
+        "privileged": false,
+        "network": "bridge",
+        "ports": [
+          "0.0.0.0:21027->21027/udp",
+          "0.0.0.0:22002->22000/tcp",
+          "0.0.0.0:22002->22000/udp",
+          "10.0.0.3:8384->8384/tcp"
+        ],
+        "mounts": [
+          [
+            "/data_s002/data/udata/real/zdocker/volumes/26d0039803b4025d98b4bcbdef256ef7891d37d8b33301a4723d771bba9f5e5a/_data",
+            "/var/syncthing",
+            true
+          ],
+          [
+            "/data_s002/syncthing/config",
+            "/var/syncthing/config",
+            true
+          ],
+          [
+            "/data_s002/syncthing/data",
+            "/var/syncthing/data",
+            true
+          ],
+          [
+            "/data_s002/syncthing/sync",
+            "/var/syncthing/sync",
+            true
+          ]
+        ],
+        "env_keys": [
+          "HOME",
+          "PATH",
+          "PGID",
+          "PUID",
+          "STGUIADDRESS",
+          "STHOMEDIR",
+          "TZ"
+        ],
+        "devices": [],
+        "cap_add": null,
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": true
+      },
+      {
+        "name": "xhongc_music_tag_web",
+        "image": "xhongc/music_tag_web:latest",
+        "created": "2025-06-12T12:36:06",
+        "restart": "always",
+        "privileged": false,
+        "network": "bridge",
+        "ports": [
+          "0.0.0.0:8002->8002/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/musictag/config",
+            "/app/data",
+            true
+          ],
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/media/music",
+            "/app/media",
+            true
+          ]
+        ],
+        "env_keys": [
+          "BUILD_ENV",
+          "GPG_KEY",
+          "LANG",
+          "PATH",
+          "PGID",
+          "PUID",
+          "PYTHONDONTWRITEBYTECODE",
+          "PYTHONUNBUFFERED",
+          "PYTHON_GET_PIP_SHA256",
+          "PYTHON_GET_PIP_URL",
+          "PYTHON_PIP_VERSION",
+          "PYTHON_SETUPTOOLS_VERSION",
+          "PYTHON_VERSION",
+          "UMASK"
+        ],
+        "devices": [],
+        "cap_add": [
+          "AUDIT_WRITE",
+          "CHOWN",
+          "DAC_OVERRIDE",
+          "FOWNER",
+          "FSETID",
+          "KILL",
+          "MKNOD",
+          "NET_BIND_SERVICE",
+          "NET_RAW",
+          "SETFCAP",
+          "SETGID",
+          "SETPCAP",
+          "SETUID",
+          "SYS_CHROOT"
+        ],
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      },
+      {
+        "name": "xream_sub-store",
+        "image": "docker.1ms.run/xream/sub-store:latest",
+        "created": "2026-08-31T14:41:27",
+        "restart": "always",
+        "privileged": false,
+        "network": "bridge",
+        "ports": [
+          "0.0.0.0:3002->3001/tcp"
+        ],
+        "mounts": [
+          [
+            "/tmp/zfsv3/sata12/18332733294/data/docker/substore",
+            "/opt/app/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "NODE_VERSION",
+          "PATH",
+          "SUB_STORE_FRONTEND_BACKEND_PATH",
+          "TIME_ZONE",
+          "TZ",
+          "YARN_VERSION"
+        ],
+        "devices": [],
+        "cap_add": null,
+        "compose_project": null,
+        "compose_service": null,
+        "working_dir": null,
+        "config_files": null,
+        "healthcheck": false
+      }
+    ]
+  },
+  "agd": {
+    "docker": {
+      "server": "29.5.3",
+      "client": "29.5.3"
+    },
+    "host": "Linux localhost 6.18.35-0-virt #1-Alpine SMP PREEMPT_DYNAMIC 2026-06-09 12:34:47 x86_64 Linux\nVERSION_ID=3.24.1\nPRETTY_NAME=\"Alpine Linux v3.24\"",
+    "containers": [
+      {
+        "name": "adguardhome",
+        "image": "adguard/adguardhome:latest",
+        "created": "2026-09-26T12:33:24",
+        "restart": "always",
+        "privileged": false,
+        "network": "adguardhome_default",
+        "ports": [
+          "0.0.0.0:3000->3000/tcp",
+          "0.0.0.0:443->443/tcp",
+          "0.0.0.0:53->53/tcp",
+          "0.0.0.0:53->53/udp",
+          "0.0.0.0:80->80/tcp"
+        ],
+        "mounts": [
+          [
+            "/root/AdGuardHome",
+            "/opt/adguardhome/conf",
+            true
+          ],
+          [
+            "/root/AdGuardHome",
+            "/opt/adguardhome/work",
+            true
+          ]
+        ],
+        "env_keys": [
+          "PATH",
+          "TZ"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "adguardhome",
+        "compose_service": "adguardhome",
+        "working_dir": "/root/AdGuardHome",
+        "config_files": "/root/AdGuardHome/docker-compose.yml",
+        "healthcheck": false
+      },
+      {
+        "name": "paopaodns",
+        "image": "sliamb/paopaodns:latest",
+        "created": "2026-11-08T01:38:39",
+        "restart": "always",
+        "privileged": false,
+        "network": "paopaodns_default",
+        "ports": [
+          "0.0.0.0:5335->53/tcp",
+          "0.0.0.0:5335->53/udp",
+          "0.0.0.0:5304->5304/tcp",
+          "0.0.0.0:5304->5304/udp",
+          "0.0.0.0:7889->7889/tcp"
+        ],
+        "mounts": [
+          [
+            "/root/PaoPaoDNS",
+            "/data",
+            true
+          ]
+        ],
+        "env_keys": [
+          "ADDINFO",
+          "AUTO_FORWARD",
+          "AUTO_FORWARD_CHECK",
+          "CNAUTO",
+          "CNFALL",
+          "CN_TRACKER",
+          "CUSTOM_FORWARD",
+          "CUSTOM_FORWARD_TTL",
+          "DEVLOG",
+          "DNSPORT",
+          "DNS_SERVERNAME",
+          "EXPIRED_FLUSH",
+          "HTTP_FILE",
+          "IPV6",
+          "PATH",
+          "QUERY_TIME",
+          "RULES_TTL",
+          "SERVER_IP",
+          "SHUFFLE",
+          "SOCKS5",
+          "TZ",
+          "UPDATE",
+          "USE_HOSTS",
+          "USE_MARK_DATA"
+        ],
+        "devices": null,
+        "cap_add": null,
+        "compose_project": "paopaodns",
+        "compose_service": "paopaodns",
+        "working_dir": "/root/PaoPaoDNS",
+        "config_files": "/root/PaoPaoDNS/docker-compose.yml",
+        "healthcheck": false
+      }
+    ]
+  }
+}

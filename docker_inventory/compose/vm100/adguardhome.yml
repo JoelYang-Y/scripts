@@ -1,0 +1,33 @@
+# ==============================================================================
+# 服务: AdGuard Home（全屋 DNS 入口 / 广告拦截）
+# 主机: PVE VM100 "AdGuardHome"  10.0.0.6   (Debian 系, Docker 29.5.3)
+# 实际部署方式: Docker Compose
+#   项目路径: /root/AdGuardHome/docker-compose.yml
+#   项目名  : adguardhome      容器名: adguardhome      网络: adguardhome_default
+# 采集基线: 2026-11-11 实机 docker inspect 核对
+# 角色定位: 局域网唯一 DNS 入口（53），上游指向 PaoPaoDNS（5335），自带 DoH/DoT
+# ==============================================================================
+
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: always
+
+    # DNS 必需：53/tcp+udp 直出；3000 首次配置向导；80/443 管理界面与 DoH
+    # 注意：容器内 443 同时承载 DoH；公网入口由反代/端口映射负责
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+
+    # work 与 conf 指向同一目录：AdGuardHome.yaml 与过滤规则/查询日志都落在该目录
+    # 升级前务必 cp AdGuardHome.yaml 备份（schema 升级不可逆）
+    volumes:
+      - /root/AdGuardHome:/opt/adguardhome/work
+      - /root/AdGuardHome:/opt/adguardhome/conf
+
+    environment:
+      TZ: "Asia/Shanghai"

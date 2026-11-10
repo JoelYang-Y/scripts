@@ -1,0 +1,43 @@
+# ==============================================================================
+# 服务: PaoPaoDNS（NAS 侧实例）
+# 主机: 极空间 Z4Pro NAS  10.0.0.3   (Docker 26.1.4)
+# 实际部署方式: Docker Compose
+#   项目路径: /tmp/zfsv3/nvme14/18332733294/data/Docker/PaoPaoDNS/docker-compose.yml
+#   项目名  : paopaodns      容器名: paopaodns      网络: paopaodns_default
+# 采集基线: 2026-11-11 实机 docker inspect 核对
+# 角色定位: 本机 DNS 递归/分流后端，供 AdGuard Home（10.0.0.6）或局域网客户端作为上游
+# 说明: 文中口令/密钥一律占位符；真实值见主机 env_file，不入仓库
+# ==============================================================================
+
+services:
+  paopaodns:
+    image: sliamb/paopaodns:latest
+    container_name: paopaodns
+    restart: always
+
+    # 数据目录：整目录挂载，升级镜像后 node 配置/缓存/规则不丢
+    volumes:
+      - /tmp/zfsv3/nvme14/18332733294/data/Docker/PaoPaoDNS:/data
+
+    environment:
+      CNAUTO: "yes"            # 自动更新国内域名/IP 数据（每日）
+      DNS_SERVERNAME: "dns.home"
+      TZ: "Asia/Shanghai"
+      UPDATE: "daily"          # 规则/数据每日更新
+      IPV6: "yes"              # 本实例启用 IPv6 解析（与 VM100 的 yes_only6 不同）
+      CNFALL: "yes"            # 国内域名解析失败时回退
+      EXPIRED_FLUSH: "yes"     # 过期缓存主动清理
+      CUSTOM_FORWARD_TTL: "0"  # 转发结果 TTL 归零（不缓存上游结果，保证分流实时性）
+      ADDINFO: "yes"
+      USE_MARK_DATA: "yes"
+      CN_TRACKER: "yes"
+      HTTP_FILE: "yes"
+
+    # 端口：5335 对外提供 DNS；5304/7889 为 PaoPaoDNS 自带 Web/管理端口
+    # 注意：53 端口留给 NAS 自身或 AdGuard，故此处用 5335
+    ports:
+      - "5335:53/tcp"
+      - "5335:53/udp"
+      - "5304:5304/tcp"
+      - "5304:5304/udp"
+      - "7889:7889/tcp"

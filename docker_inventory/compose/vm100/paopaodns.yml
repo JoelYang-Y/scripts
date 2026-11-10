@@ -1,0 +1,41 @@
+# ==============================================================================
+# 服务: PaoPaoDNS（VM100 侧实例 · AdGuard Home 的上游）
+# 主机: PVE VM100 "AdGuardHome"  10.0.0.6   (Docker 29.5.3)
+# 实际部署方式: Docker Compose
+#   项目路径: /root/PaoPaoDNS/docker-compose.yml
+#   项目名  : paopaodns      容器名: paopaodns      网络: paopaodns_default
+# 采集基线: 2026-11-11 实机 docker inspect 核对
+# 与 NAS 实例的差异: IPV6=yes_only6（仅返回 AAAA）、SOCKS5 走 Mac mini Surge、TTL=300
+# ==============================================================================
+
+services:
+  paopaodns:
+    image: sliamb/paopaodns:latest
+    container_name: paopaodns
+    restart: always
+
+    volumes:
+      - /root/PaoPaoDNS:/data
+
+    environment:
+      CNAUTO: "yes"
+      DNS_SERVERNAME: "dns.home"
+      TZ: "Asia/Shanghai"
+      UPDATE: "daily"
+      IPV6: "yes_only6"                 # 只处理 AAAA 查询，A 记录交给国内链路
+      SOCKS5: "@10.0.0.2:6153"          # 境外解析经 Mac mini Surge 的 SOCKS5 出口
+      CNFALL: "yes"
+      EXPIRED_FLUSH: "yes"
+      CUSTOM_FORWARD_TTL: "300"         # 转发结果缓存 5 分钟
+      ADDINFO: "yes"
+      USE_MARK_DATA: "yes"
+      CN_TRACKER: "yes"
+      HTTP_FILE: "yes"
+
+    # 5335 供 AdGuard Home 上游使用；5304/7889 为管理/Web 端口
+    ports:
+      - "5335:53/tcp"
+      - "5335:53/udp"
+      - "5304:5304/tcp"
+      - "5304:5304/udp"
+      - "7889:7889/tcp"

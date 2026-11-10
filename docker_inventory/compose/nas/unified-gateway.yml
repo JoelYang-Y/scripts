@@ -1,0 +1,19 @@
+# ==============================================================================
+# 服务: unified-gateway
+# 主机: 极空间 Z4Pro NAS  10.0.0.3   (Docker 26.1.4)
+# 部署方式: 实际由 Docker Compose 部署
+# 采集基线: 2026-11-11 实机 docker inspect 核对
+# 说明: 文中口令/密钥一律占位符；真实值见主机 env_file，不入仓库
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  homelab-gateway:
+    image: docker.1ms.run/nginx:alpine
+    container_name: homelab-gateway-nginx
+    restart: always
+    network_mode: host
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
