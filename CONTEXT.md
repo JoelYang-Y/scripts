@@ -13,7 +13,7 @@
 | **`ATT 家宽`** | 纯正美国家宽服务器 (`107.141.151.219`)，承载 ss-rust 高可信出口节点 | “ATT机器”、“家宽节点” |
 | **`NAS 中枢`** | 极空间 Z4Pro 物理机 (`10.0.0.3`)，承载 14 个核心 Docker 容器与媒体存储 | “局域网 NAS”、“私有云” |
 | **`PVE 底座`** | Proxmox VE 9.2.2 物理虚拟化宿主机 (`10.0.0.4`, Debian 13) | “PVE宿主机”、“物理机” |
-| **`Harness 节点`** | DeepSeek Harness AI 智能体容器 (`10.0.0.5`, PVE CT 101)，主模型 Gemini 3.7 Flash | “dsh”、“本地大模型” |
+| **`AI 节点`** | PVE CT 101 (`10.0.0.5`)，PVE 侧名称与主机名均为 `Debian`；跑 Docker 容器 `muse2api`——muse.ai 逆向的 OpenAI 兼容多模态 API (`10.0.0.5:18610`) + Beszel Agent。原 DeepSeek Harness (`:3000`) 已于 2026-11-14 下线替换 | “dsh”、“Harness 节点”、“本地大模型” |
 | **`DNS 枢纽`** | AdGuard Home + PaoPaoDNS 递归防污染虚拟机 (`10.0.0.6`, PVE VM 100) | “内网 DNS”、“广告拦截机” |
 | **`StartPage Hub`** | 部署于 `jhsweetheart.com` 的个人导航大屏与 17 个生产 Docker 配置代码库 | “起始页”、“导航站”、“主页” |
 
