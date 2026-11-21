@@ -103,10 +103,10 @@ export const DOCKER_SERVICES: DockerServiceConfig[] = [
     "hostIp": "10.0.0.3",
     "envDesc": [
       "双容器协同: beszel-hub (8095:8090) + beszel-agent (Host 模式 45876)",
-      "统一收集 NAS 自身、Mac mini、PVE Harness (10.0.0.5)、VPS 主机指标",
+      "统一收集 NAS 自身、Mac mini、PVE CT101 (10.0.0.5)、VPS 主机指标",
       "挂载 /var/run/docker.sock 自动采集所有运行中容器 CPU 与内存"
     ],
-    "compose": "# ==============================================================================\n# 服务名称: Beszel Hub & Agent (极空间系统与容器性能监控全套)\n# 部署方式: Docker Compose\n# 架构说明: 统一收集 NAS 自身、Mac mini、PVE Harness (10.0.0.5)、VPS 主机与 Docker 指标\n# ==============================================================================\n\nversion: '3.8'\n\nservices:\n  # 中心服务端 (Web 管理控制台)\n  beszel-hub:\n    image: docker.1ms.run/henrygd/beszel:latest\n    container_name: beszel-hub\n    restart: unless-stopped\n    ports:\n      - \"8095:8090\"\n    volumes:\n      - ./data:/beszel_data\n    environment:\n      - TZ=Asia/Shanghai\n\n  # NAS 本地系统与容器监控探针\n  beszel-agent:\n    image: docker.1ms.run/henrygd/beszel-agent:latest\n    container_name: beszel-agent\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      # 挂载 Docker socket 监控 NAS 上的全部容器状态与资源\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n    environment:\n      - TZ=Asia/Shanghai\n      - PORT=45876\n      # Hub 生成的安全认证公钥 (与 8095 控制台配对)\n      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIODn+CqgzpJ65PaOUL6MwueWlGh/MryzDBMAvWYAOtad"
+    "compose": "# ==============================================================================\n# 服务名称: Beszel Hub & Agent (极空间系统与容器性能监控全套)\n# 部署方式: Docker Compose\n# 架构说明: 统一收集 NAS 自身、Mac mini、PVE CT101 (10.0.0.5)、VPS 主机与 Docker 指标\n# ==============================================================================\n\nversion: '3.8'\n\nservices:\n  # 中心服务端 (Web 管理控制台)\n  beszel-hub:\n    image: docker.1ms.run/henrygd/beszel:latest\n    container_name: beszel-hub\n    restart: unless-stopped\n    ports:\n      - \"8095:8090\"\n    volumes:\n      - ./data:/beszel_data\n    environment:\n      - TZ=Asia/Shanghai\n\n  # NAS 本地系统与容器监控探针\n  beszel-agent:\n    image: docker.1ms.run/henrygd/beszel-agent:latest\n    container_name: beszel-agent\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      # 挂载 Docker socket 监控 NAS 上的全部容器状态与资源\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n    environment:\n      - TZ=Asia/Shanghai\n      - PORT=45876\n      # Hub 生成的安全认证公钥 (与 8095 控制台配对)\n      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIODn+CqgzpJ65PaOUL6MwueWlGh/MryzDBMAvWYAOtad"
   },
   {
     "id": "nas-uptime-kuma",
@@ -282,29 +282,30 @@ export const DOCKER_SERVICES: DockerServiceConfig[] = [
     "compose": "version: '3.8'\nservices:\n  beszel-agent:\n    image: henrygd/beszel-agent:latest\n    container_name: beszel-agent\n    restart: unless-stopped\n    network_mode: host\n    environment:\n      - PORT=45876\n      - KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n"
   },
   {
-    "id": "harness-dsh-web",
-    "name": "DeepSeek Harness AI 智能体",
+    "id": "harness-muse2api",
+    "name": "muse2api 多模态 API（AI 节点）",
     "category": "harness",
     "categoryLabel": "10.0.0.5 AI中枢",
-    "desc": "基于 Nous Research 框架与 Gemini 3.7 Flash 的本地自动化编程、代码审计与任务派发中枢",
-    "port": "3000",
-    "host": "10.0.0.5 (Harness CT 101)",
+    "desc": "muse.ai 网页端能力逆向封装的 OpenAI 兼容 API：文本对话、文生图、图生图、文生视频、首帧图生视频；内置 chromium CDP 多账号池与会话续期",
+    "port": "18610",
+    "host": "10.0.0.5 (CT 101 Debian)",
     "hostIp": "10.0.0.5",
     "envDesc": [
-      "PORT: 3000 WebUI 与 CLI 工作区访问端口",
-      "Model: google/gemini-3.7-flash (Vertex AI Global)",
-      "Workspace: /root/workspace 隔离沙箱环境"
+      "MUSE2API_KEY: API 访问密钥（env_file 注入，不入库）",
+      "MUSE2API_CONCURRENCY: 并发上限",
+      "MUSE2API_PUBLIC_BASE: 对外基址 http://10.0.0.5:18610",
+      "Healthcheck: /healthz，容器 read_only + tmpfs 沙箱"
     ],
-    "compose": "version: '3.8'\nservices:\n  deepseek-harness:\n    image: deepseek-ai/harness:latest\n    container_name: deepseek-harness\n    restart: unless-stopped\n    ports:\n      - \"3000:3000\"\n    environment:\n      - PORT=3000\n      - GOOGLE_GENAI_USE_VERTEXAI=true\n      - GOOGLE_CLOUD_LOCATION=global\n    volumes:\n      - /root/workspace:/workspace\n      - /etc/dsh.env:/etc/dsh.env:ro\n"
+    "compose": "services:\n  muse2api:\n    build: .\n    image: muse2api:1.6.10\n    container_name: muse2api\n    restart: unless-stopped\n    read_only: true\n    ports:\n      - \"10.0.0.5:18610:18610\"\n    env_file:\n      - .env\n    environment:\n      - MUSE2API_KEY=${MUSE2API_KEY}\n      - MUSE2API_PUBLIC_BASE=${MUSE2API_PUBLIC_BASE}\n      - MUSE2API_CONCURRENCY=${MUSE2API_CONCURRENCY}\n      - PYTHONPYCACHEPREFIX=/tmp/pycache\n    volumes:\n      - ./data:/app/data\n    shm_size: \"2gb\"\n    healthcheck:\n      test: [\"CMD\", \"curl\", \"-fsS\", \"http://127.0.0.1:18610/healthz\"]\n      interval: 15s\n      timeout: 5s\n      retries: 8\n      start_period: 45s\n"
   },
   {
     "id": "harness-beszel-agent",
-    "name": "Beszel Agent 探针 (Harness 节点)",
+    "name": "Beszel Agent 探针 (AI 节点)",
     "category": "harness",
     "categoryLabel": "10.0.0.5 AI中枢",
-    "desc": "AI 编程智能体容器 CPU/内存负载与磁盘 I/O 实时监控探针",
+    "desc": "AI 节点（muse2api 容器）CPU/内存负载与磁盘 I/O 实时监控探针",
     "port": "45876",
-    "host": "10.0.0.5 (Harness CT 101)",
+    "host": "10.0.0.5 (CT 101 Debian)",
     "hostIp": "10.0.0.5",
     "envDesc": [
       "PORT: 45876",
